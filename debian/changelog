@@ -1,3 +1,10 @@
+contractor (0.20.0-1) noble; urgency=medium
+
+  * Update cinp
+  * Reworked PXE config template
+
+ -- Peter Howe <pnhowe@gmail.com>  Thu, 19 Feb 2026 06:34:27 -0700
+
 contractor (0.19.3-1) noble; urgency=medium
 
   * tweeking this so the API port can be published if it isn't the default
