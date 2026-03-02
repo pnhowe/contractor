@@ -72,7 +72,7 @@ d-i netcfg/hostname string {{ _hostname }}
 d-i mirror/country string manual
 d-i mirror/http/hostname string {{ mirror_server }}
 d-i mirror/http/directory string /ubuntu/
-d-i mirror/http/proxy string {{ mirror_proxy }}
+d-i mirror/http/proxy string {{ http_proxy }}
 
 # Suite to install.
 d-i mirror/suite string {{ distro_version }}
