@@ -1,7 +1,7 @@
 import React from 'react';
 import CInP from './cinp';
-import { Table, TableHead, TableRow, TableCell } from 'react-toolbox';
-import { Link } from 'react-router-dom';
+import { Box, Link, Table, TableBody, TableCell, TableHead, TableRow, Typography } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 
 
 class Network extends React.Component
@@ -17,10 +17,13 @@ class Network extends React.Component
     this.update( this.props );
   }
 
-  componentWillReceiveProps( newProps )
+  componentDidUpdate( prevProps )
   {
-    this.setState( { network_list: [], network: null } );
-    this.update( newProps );
+    if ( prevProps.id !== this.props.id || prevProps.site !== this.props.site )
+    {
+      this.setState( { network_list: [], network: null } );
+      this.update( this.props );
+    }
   }
 
   update( props )
@@ -82,53 +85,67 @@ class Network extends React.Component
     {
       var network = this.state.network;
       return (
-        <div>
-          <h3>Network Detail</h3>
+        <Box>
+          <Typography variant="h5" gutterBottom>Network Detail</Typography>
           { network !== null &&
-            <div>
-              <table>
-                <thead/>
-                <tbody>
-                  <tr><th>Site</th><td><Link to={ '/site/' + network.site }>{ network.site }</Link></td></tr>
-                  <tr><th>Name</th><td>{ network.name }</td></tr>
-                  <tr><th>MTU</th><td>{ network.mtu }</td></tr>
-                  <tr><th>Address Blocks</th><td>{ network.address_block_list.map( ( id ) => ( <Link to={ '/addressblock/' + id }>{ id }</Link> ) ) }</td></tr>
-                  <tr><th>Created</th><td>{ network.created }</td></tr>
-                  <tr><th>Updated</th><td>{ network.updated }</td></tr>
-                  <tr><th colSpan="2">Address Blocks</th></tr>
-                  <tr><td colSpan="2"><table>
-                  <thead><tr><th>Address Block</th><th>Vlan</th><th>Created</th><th>Updated</th></tr></thead>
-                  <tbody>
+            <Box>
+              <Table size="small" sx={{ mt: 1 }}>
+                <TableBody>
+                  <TableRow><TableCell variant="head">Site</TableCell><TableCell><Link component={ RouterLink } to={ '/site/' + network.site }>{ network.site }</Link></TableCell></TableRow>
+                  <TableRow><TableCell variant="head">Name</TableCell><TableCell>{ network.name }</TableCell></TableRow>
+                  <TableRow><TableCell variant="head">MTU</TableCell><TableCell>{ network.mtu }</TableCell></TableRow>
+                  <TableRow><TableCell variant="head">Address Blocks</TableCell><TableCell>{ network.address_block_list.map( ( id ) => ( <Link key={ id } component={ RouterLink } to={ '/addressblock/' + id }>{ id }</Link> ) ) }</TableCell></TableRow>
+                  <TableRow><TableCell variant="head">Created</TableCell><TableCell>{ network.created }</TableCell></TableRow>
+                  <TableRow><TableCell variant="head">Updated</TableCell><TableCell>{ network.updated }</TableCell></TableRow>
+                </TableBody>
+              </Table>
+              <Typography variant="h6" sx={{ mt: 2 }}>Address Blocks</Typography>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Address Block</TableCell>
+                    <TableCell>Vlan</TableCell>
+                    <TableCell>Created</TableCell>
+                    <TableCell>Updated</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
                   { this.state.network_address_block_list.map( ( item ) => (
-                    <tr key={ item.address_block }><td><Link to={ '/addressblock/' + item.address_block }>{ item.address_block }</Link></td><td>{ item.vlan }</td><td>{ item.created }</td><td>{ item.updated }</td></tr>
+                    <TableRow key={ item.address_block }>
+                      <TableCell><Link component={ RouterLink } to={ '/addressblock/' + item.address_block }>{ item.address_block }</Link></TableCell>
+                      <TableCell>{ item.vlan }</TableCell>
+                      <TableCell>{ item.created }</TableCell>
+                      <TableCell>{ item.updated }</TableCell>
+                    </TableRow>
                   ) ) }
-                  </tbody>
-                  </table></td></tr>
-
-                </tbody>
-              </table>
-            </div>
+                </TableBody>
+              </Table>
+            </Box>
           }
-        </div>
+        </Box>
       );
     }
 
     return (
-      <Table selectable={ false } multiSelectable={ false }>
+      <Table>
         <TableHead>
-          <TableCell>Id</TableCell>
-          <TableCell>Name</TableCell>
-          <TableCell>Created</TableCell>
-          <TableCell>Updated</TableCell>
-        </TableHead>
-        { this.state.network_list.map( ( item ) => (
-          <TableRow key={ item.name } >
-            <TableCell><Link to={ '/network/' + item.id }>{ item.id }</Link></TableCell>
-            <TableCell>{ item.name }</TableCell>
-            <TableCell>{ item.created }</TableCell>
-            <TableCell>{ item.updated }</TableCell>
+          <TableRow>
+            <TableCell>Id</TableCell>
+            <TableCell>Name</TableCell>
+            <TableCell>Created</TableCell>
+            <TableCell>Updated</TableCell>
           </TableRow>
-        ) ) }
+        </TableHead>
+        <TableBody>
+          { this.state.network_list.map( ( item ) => (
+            <TableRow key={ item.name } >
+              <TableCell><Link component={ RouterLink } to={ '/network/' + item.id }>{ item.id }</Link></TableCell>
+              <TableCell>{ item.name }</TableCell>
+              <TableCell>{ item.created }</TableCell>
+              <TableCell>{ item.updated }</TableCell>
+            </TableRow>
+          ) ) }
+        </TableBody>
       </Table>
     );
 

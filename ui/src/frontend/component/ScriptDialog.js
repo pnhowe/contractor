@@ -1,6 +1,5 @@
 import React from 'react';
-import { Dialog, Table, TableHead, TableRow, TableCell, Button } from 'react-toolbox';
-import theme from './ScriptDialogTheme.css';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Table, TableBody, TableCell, TableRow } from '@mui/material';
 
 class ScriptDialog extends React.Component
 {
@@ -29,35 +28,29 @@ class ScriptDialog extends React.Component
     this.setState( { active: false } );
   };
 
-  actions = [
-    { label: "Close", onClick: this.close },
-  ];
-
   render()
   {
     return (
-      <div>
-        <Dialog
-          actions={ this.actions }
-          active={ this.state.active }
-          onEscKeyDown={ this.close }
-          onOverlayClick={ this.close }
-          title='Script'
-          theme={ theme }
-        >
-          <table>
-            <thead/>
-            <tbody>
-              <tr><th>Name</th><td>{ this.state.script.name }</td></tr>
-              <tr><th>Description</th><td>{ this.state.script.description }</td></tr>
-            { this.state.script.script_lines.map( ( item, index ) => (
-              <tr key={ index }><td>{ index }</td><td><pre>{ item }</pre></td></tr>
-            ) ) }
-            </tbody>
-          </table>
+      <Box>
+        <Dialog open={ this.state.active } onClose={ this.close } maxWidth="lg">
+          <DialogTitle>Script</DialogTitle>
+          <DialogContent>
+            <Table size="small">
+              <TableBody>
+                <TableRow><TableCell variant="head">Name</TableCell><TableCell>{ this.state.script.name }</TableCell></TableRow>
+                <TableRow><TableCell variant="head">Description</TableCell><TableCell>{ this.state.script.description }</TableCell></TableRow>
+                { this.state.script.script_lines.map( ( item, index ) => (
+                  <TableRow key={ index }><TableCell>{ index }</TableCell><TableCell><pre>{ item }</pre></TableCell></TableRow>
+                ) ) }
+              </TableBody>
+            </Table>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={ this.close }>Close</Button>
+          </DialogActions>
         </Dialog>
         <Button onClick={ this.show }>Display</Button>
-      </div>
+      </Box>
 );
   }
 };

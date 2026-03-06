@@ -1,8 +1,8 @@
 import React from 'react';
 import CInP from './cinp';
 import JobStateDialog from './JobStateDialog';
-import { Table, TableHead, TableRow, TableCell, Navagation, Button } from 'react-toolbox';
-import { Link } from 'react-router-dom';
+import { Box, Button, Link, Table, TableBody, TableCell, TableHead, TableRow, Typography } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 
 
 class Job extends React.Component
@@ -22,7 +22,7 @@ class Job extends React.Component
   resume = () =>
   {
     this.props.contractor.resumeJob( this.state.jobURI )
-      .then( ( result ) =>
+      .then( () =>
       {
         this.update( this.props );
         alert( 'Job Resumed' );
@@ -32,7 +32,7 @@ class Job extends React.Component
   pause = () =>
   {
     this.props.contractor.pauseJob( this.state.jobURI )
-      .then( ( result ) =>
+      .then( () =>
       {
         this.update( this.props );
         alert( 'Job Paused' );
@@ -42,7 +42,7 @@ class Job extends React.Component
   reset = () =>
   {
     this.props.contractor.resetJob( this.state.jobURI )
-      .then( ( result ) =>
+      .then( () =>
       {
         this.update( this.props );
         alert( 'Job Reset' );
@@ -52,7 +52,7 @@ class Job extends React.Component
   rollback = () =>
   {
     this.props.contractor.rollbackJob( this.state.jobURI )
-      .then( ( result ) =>
+      .then( () =>
       {
         this.update( this.props );
         alert( 'Job Rollback' );
@@ -64,10 +64,13 @@ class Job extends React.Component
     this.update( this.props );
   }
 
-  componentWillReceiveProps( newProps )
+  componentDidUpdate( prevProps )
   {
-    this.setState( { jobF_list: [], jobS_list: [], job: null } );
-    this.update( newProps );
+    if ( prevProps.id !== this.props.id || prevProps.site !== this.props.site )
+    {
+      this.setState( { jobF_list: [], jobS_list: [], job: null } );
+      this.update( this.props );
+    }
   }
 
   update( props )
@@ -206,22 +209,22 @@ class Job extends React.Component
   render_status( item )
   {
     if ( item[1] == 'Function' && item[2].dispatched )
-      return <div><strong>Task Dispatched</strong></div>
+      return <Box key={ item[0] }><strong>Task Dispatched</strong></Box>
 
     if ( item[1] == 'Scope' )
     {
       if ( item[2] === null )
-        return <div>{ item[0].toLocaleString( undefined, { minimumFractionDigits:2 } ) }%</div>
+        return <Box key={ item[0] }>{ item[0].toLocaleString( undefined, { minimumFractionDigits:2 } ) }%</Box>
 
       if ( item[2].time_remaining )
       {
         if( item[2].time_remaining[0] == '-' )
-          return <div style={{ "background-color": "#ffa" }}><strong>{ item[2].description }</strong> { item[0].toLocaleString( undefined, { minimumFractionDigits:2 } ) }% Elapsed:&nbsp;{ item[2].time_elapsed } Remaning:&nbsp;{ item[2].time_remaining }</div>
+          return <Box key={ item[0] } sx={{ backgroundColor: '#ffa' }}><strong>{ item[2].description }</strong> { item[0].toLocaleString( undefined, { minimumFractionDigits:2 } ) }% Elapsed:&nbsp;{ item[2].time_elapsed } Remaning:&nbsp;{ item[2].time_remaining }</Box>
 
-        return <div><strong>{ item[2].description }</strong> { item[0].toLocaleString( undefined, { minimumFractionDigits:2 } ) }% Elapsed:&nbsp;{ item[2].time_elapsed } Remaning:&nbsp;{ item[2].time_remaining }</div>
+        return <Box key={ item[0] }><strong>{ item[2].description }</strong> { item[0].toLocaleString( undefined, { minimumFractionDigits:2 } ) }% Elapsed:&nbsp;{ item[2].time_elapsed } Remaning:&nbsp;{ item[2].time_remaining }</Box>
       }
 
-      return <div><strong>{ item[2].description }</strong> { item[0].toLocaleString( undefined, { minimumFractionDigits:2 } ) }%  Elapsed:&nbsp;{ item[2].time_elapsed }</div>
+      return <Box key={ item[0] }><strong>{ item[2].description }</strong> { item[0].toLocaleString( undefined, { minimumFractionDigits:2 } ) }%  Elapsed:&nbsp;{ item[2].time_elapsed }</Box>
     }
   }
 
@@ -231,105 +234,118 @@ class Job extends React.Component
     {
       var job = this.state.job;
       return (
-        <div>
-          <h1>Job Detail</h1>
+        <Box>
+          <Typography variant="h5" gutterBottom>Job Detail</Typography>
           { job !== null &&
-            <div>
-              <Button onClick={ this.pause } disabled={ !this.state.canPause }>Pause</Button>
-              <Button onClick={ this.resume } disabled={ !this.state.canResume }>Resume</Button>
-              <Button onClick={ this.reset } disabled={ !this.state.canReset }>Reset</Button>
-              <Button onClick={ this.rollback } disabled={ !this.state.canRollback }>Rollback</Button>
-              <JobStateDialog getState={ this.props.contractor.getJobState } uri={ this.state.jobURI } />
-              <table>
-                <thead/>
-                <tbody>
-                  <tr><th>Site</th><td><Link to={ '/site/' + job.site }>{ job.site }</Link></td></tr>
+            <Box>
+              <Box sx={{ mb: 1 }}>
+                <Button onClick={ this.pause } disabled={ !this.state.canPause }>Pause</Button>
+                <Button onClick={ this.resume } disabled={ !this.state.canResume }>Resume</Button>
+                <Button onClick={ this.reset } disabled={ !this.state.canReset }>Reset</Button>
+                <Button onClick={ this.rollback } disabled={ !this.state.canRollback }>Rollback</Button>
+                <JobStateDialog getState={ this.props.contractor.getJobState } uri={ this.state.jobURI } />
+              </Box>
+              <Table size="small" sx={{ mt: 1 }}>
+                <TableBody>
+                  <TableRow><TableCell variant="head">Site</TableCell><TableCell><Link component={ RouterLink } to={ '/site/' + job.site }>{ job.site }</Link></TableCell></TableRow>
                   { job.foundation !== undefined &&
-                    <tr><th>Foundation</th><td><Link to={ '/foundation/' + job.foundation }>{ job.foundation }</Link></td></tr>
+                    <TableRow><TableCell variant="head">Foundation</TableCell><TableCell><Link component={ RouterLink } to={ '/foundation/' + job.foundation }>{ job.foundation }</Link></TableCell></TableRow>
                   }
                   { job.structure !== undefined &&
-                    <tr><th>Structure</th><td><Link to={ '/structure/' + job.structure }>{ job.structure }</Link></td></tr>
+                    <TableRow><TableCell variant="head">Structure</TableCell><TableCell><Link component={ RouterLink } to={ '/structure/' + job.structure }>{ job.structure }</Link></TableCell></TableRow>
                   }
-                  <tr><th>Script</th><td>{ job.script_name }</td></tr>
-                  <tr><th>Message</th><td>{ job.message }</td></tr>
-                  <tr><th>Progress</th><td>{ job.progress }</td></tr>
-                  <tr><th>State</th><td>{ job.state }</td></tr>
-                  <tr><th>Created</th><td>{ job.created }</td></tr>
-                  <tr><th>Updated</th><td>{ job.updated }</td></tr>
-                </tbody>
-              </table>
-            </div>
+                  <TableRow><TableCell variant="head">Script</TableCell><TableCell>{ job.script_name }</TableCell></TableRow>
+                  <TableRow><TableCell variant="head">Message</TableCell><TableCell>{ job.message }</TableCell></TableRow>
+                  <TableRow><TableCell variant="head">Progress</TableCell><TableCell>{ job.progress }</TableCell></TableRow>
+                  <TableRow><TableCell variant="head">State</TableCell><TableCell>{ job.state }</TableCell></TableRow>
+                  <TableRow><TableCell variant="head">Created</TableCell><TableCell>{ job.created }</TableCell></TableRow>
+                  <TableRow><TableCell variant="head">Updated</TableCell><TableCell>{ job.updated }</TableCell></TableRow>
+                </TableBody>
+              </Table>
+            </Box>
           }
-        </div>
+        </Box>
       );
     }
 
     return (
-      <div>
-        <h3>Foundation Jobs</h3>
-        <Table selectable={ false } multiSelectable={ false }>
+      <Box>
+        <Typography variant="h5" gutterBottom>Foundation Jobs</Typography>
+        <Table>
           <TableHead>
-            <TableCell numeric>Id</TableCell>
-            <TableCell>Script</TableCell>
-            <TableCell>Foundation</TableCell>
-            <TableCell>Message</TableCell>
-            <TableCell>State</TableCell>
-            <TableCell>Dates</TableCell>
-          </TableHead>
-          { this.state.jobF_list.map( ( item ) => (
-            <TableRow key={ item.id }>
-              <TableCell numeric><Link to={ '/job/f/' + item.id }>{ item.id }</Link></TableCell>
-              <TableCell>{ item.script }</TableCell>
-              <TableCell><Link to={ '/foundation/' + item.foundation }>{ item.foundation }</Link></TableCell>
-              <TableCell>{ item.message }<br/>{ item.status.map( this.render_status ) }</TableCell>
-              <TableCell>{ item.state }</TableCell>
-              <TableCell><strong>Created:</strong>&nbsp;{ item.created }<br/><strong>Updated:</strong>&nbsp;{ item.updated }</TableCell>
+            <TableRow>
+              <TableCell align="right">Id</TableCell>
+              <TableCell>Script</TableCell>
+              <TableCell>Foundation</TableCell>
+              <TableCell>Message</TableCell>
+              <TableCell>State</TableCell>
+              <TableCell>Dates</TableCell>
             </TableRow>
-          ) ) }
+          </TableHead>
+          <TableBody>
+            { this.state.jobF_list.map( ( item ) => (
+              <TableRow key={ item.id }>
+                <TableCell align="right"><Link component={ RouterLink } to={ '/job/f/' + item.id }>{ item.id }</Link></TableCell>
+                <TableCell>{ item.script }</TableCell>
+                <TableCell><Link component={ RouterLink } to={ '/foundation/' + item.foundation }>{ item.foundation }</Link></TableCell>
+                <TableCell>{ item.message }<br/>{ item.status.map( this.render_status ) }</TableCell>
+                <TableCell>{ item.state }</TableCell>
+                <TableCell><strong>Created:</strong>&nbsp;{ item.created }<br/><strong>Updated:</strong>&nbsp;{ item.updated }</TableCell>
+              </TableRow>
+            ) ) }
+          </TableBody>
         </Table>
-        <h3>Structure Jobs</h3>
-        <Table selectable={ false } multiSelectable={ false }>
+        <Typography variant="h5" gutterBottom sx={{ mt: 2 }}>Structure Jobs</Typography>
+        <Table>
           <TableHead>
-            <TableCell numeric>Id</TableCell>
-            <TableCell>Script</TableCell>
-            <TableCell>Structure</TableCell>
-            <TableCell>Status</TableCell>
-            <TableCell>State</TableCell>
-            <TableCell>Dates</TableCell>
-          </TableHead>
-          { this.state.jobS_list.map( ( item ) => (
-            <TableRow key={ item.id }>
-              <TableCell numeric><Link to={ '/job/s/' + item.id }>{ item.id }</Link></TableCell>
-              <TableCell>{ item.script }</TableCell>
-              <TableCell><Link to={ '/structure/' + item.structure }>{ item.structure }</Link></TableCell>
-              <TableCell>{ item.message }<br/>{ item.status.map( this.render_status ) }</TableCell>
-              <TableCell>{ item.state }</TableCell>
-              <TableCell><strong>Created:</strong>&nbsp;{ item.created }<br/><strong>Updated:</strong>&nbsp;{ item.updated }</TableCell>
+            <TableRow>
+              <TableCell align="right">Id</TableCell>
+              <TableCell>Script</TableCell>
+              <TableCell>Structure</TableCell>
+              <TableCell>Status</TableCell>
+              <TableCell>State</TableCell>
+              <TableCell>Dates</TableCell>
             </TableRow>
-          ) ) }
+          </TableHead>
+          <TableBody>
+            { this.state.jobS_list.map( ( item ) => (
+              <TableRow key={ item.id }>
+                <TableCell align="right"><Link component={ RouterLink } to={ '/job/s/' + item.id }>{ item.id }</Link></TableCell>
+                <TableCell>{ item.script }</TableCell>
+                <TableCell><Link component={ RouterLink } to={ '/structure/' + item.structure }>{ item.structure }</Link></TableCell>
+                <TableCell>{ item.message }<br/>{ item.status.map( this.render_status ) }</TableCell>
+                <TableCell>{ item.state }</TableCell>
+                <TableCell><strong>Created:</strong>&nbsp;{ item.created }<br/><strong>Updated:</strong>&nbsp;{ item.updated }</TableCell>
+              </TableRow>
+            ) ) }
+          </TableBody>
         </Table>
-        <h3>Dependency Jobs</h3>
-        <Table selectable={ false } multiSelectable={ false }>
+        <Typography variant="h5" gutterBottom sx={{ mt: 2 }}>Dependency Jobs</Typography>
+        <Table>
           <TableHead>
-            <TableCell numeric>Id</TableCell>
-            <TableCell>Script</TableCell>
-            <TableCell>Dependency</TableCell>
-            <TableCell>Message</TableCell>
-            <TableCell>State</TableCell>
-            <TableCell>Dates</TableCell>
-          </TableHead>
-          { this.state.jobD_list.map( ( item ) => (
-            <TableRow key={ item.id }>
-              <TableCell numeric><Link to={ '/job/d/' + item.id }>{ item.id }</Link></TableCell>
-              <TableCell>{ item.script }</TableCell>
-              <TableCell>{ item.dependency }</TableCell>
-              <TableCell>{ item.message }<br/>{ item.status.map( this.render_status ) }</TableCell>
-              <TableCell>{ item.state }</TableCell>
-              <TableCell><strong>Created:</strong>&nbsp;{ item.created }<br/><strong>Updated:</strong>&nbsp;{ item.updated }</TableCell>
+            <TableRow>
+              <TableCell align="right">Id</TableCell>
+              <TableCell>Script</TableCell>
+              <TableCell>Dependency</TableCell>
+              <TableCell>Message</TableCell>
+              <TableCell>State</TableCell>
+              <TableCell>Dates</TableCell>
             </TableRow>
-          ) ) }
+          </TableHead>
+          <TableBody>
+            { this.state.jobD_list.map( ( item ) => (
+              <TableRow key={ item.id }>
+                <TableCell align="right"><Link component={ RouterLink } to={ '/job/d/' + item.id }>{ item.id }</Link></TableCell>
+                <TableCell>{ item.script }</TableCell>
+                <TableCell>{ item.dependency }</TableCell>
+                <TableCell>{ item.message }<br/>{ item.status.map( this.render_status ) }</TableCell>
+                <TableCell>{ item.state }</TableCell>
+                <TableCell><strong>Created:</strong>&nbsp;{ item.created }<br/><strong>Updated:</strong>&nbsp;{ item.updated }</TableCell>
+              </TableRow>
+            ) ) }
+          </TableBody>
         </Table>
-      </div>
+      </Box>
     );
 
   }

@@ -1,8 +1,8 @@
 import React from 'react';
 import CInP from './cinp';
 import ConfigDialog from './ConfigDialog';
-import { Table, TableHead, TableRow, TableCell } from 'react-toolbox';
-import { Link } from 'react-router-dom';
+import { Box, Link, Table, TableBody, TableCell, TableHead, TableRow, Typography } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 
 
 class Foundation extends React.Component
@@ -10,6 +10,7 @@ class Foundation extends React.Component
   state = {
       foundation_list: [],
       foundation: null,
+      interface_list: [],
       foundationDependency_list: []
   };
 
@@ -18,10 +19,13 @@ class Foundation extends React.Component
     this.update( this.props );
   }
 
-  componentWillReceiveProps( newProps )
+  componentDidUpdate( prevProps )
   {
-    this.setState( { foundation_list: [], foundation: null, interface_list: [] } );
-    this.update( newProps );
+    if ( prevProps.id !== this.props.id || prevProps.site !== this.props.site )
+    {
+      this.setState( { foundation_list: [], foundation: null, interface_list: [], foundationDependency_list: [] } );
+      this.update( this.props );
+    }
   }
 
   update( props )
@@ -87,63 +91,81 @@ class Foundation extends React.Component
     {
       var foundation = this.state.foundation;
       return (
-        <div>
-          <h3>Foundation Detail</h3>
+        <Box>
+          <Typography variant="h5" gutterBottom>Foundation Detail</Typography>
           { foundation !== null &&
-            <div>
+            <Box>
               <ConfigDialog getConfig={ this.props.getConfig } uri={ '/api/v1/Building/Foundation:' + this.props.id + ':' } />
-              <table>
-                <thead/>
-                <tbody>
-                  <tr><th>Site</th><td><Link to={ '/site/' + foundation.site }>{ foundation.site }</Link></td></tr>
-                  <tr><th>Locator</th><td>{ foundation.locator }</td></tr>
-                  <tr><th>State</th><td>{ foundation.state }</td></tr>
-                  <tr><th>Type</th><td>{ foundation.type }</td></tr>
-                  <tr><th>Plot</th><td>{ foundation.plot }</td></tr>
-                  <tr><th>Blueprint</th><td><Link to={ '/blueprint/f/' + foundation.blueprint }>{ foundation.blueprint }</Link></td></tr>
-                  <tr><th>Id Map</th><td>{ JSON.stringify( foundation.id_map ) }</td></tr>
-                  <tr><th>Interfaces</th><td><ul>{ this.state.interface_list.map( ( item, index ) => (
+              <Table size="small" sx={{ mt: 1 }}>
+                <TableBody>
+                  <TableRow><TableCell variant="head">Site</TableCell><TableCell><Link component={ RouterLink } to={ '/site/' + foundation.site }>{ foundation.site }</Link></TableCell></TableRow>
+                  <TableRow><TableCell variant="head">Locator</TableCell><TableCell>{ foundation.locator }</TableCell></TableRow>
+                  <TableRow><TableCell variant="head">State</TableCell><TableCell>{ foundation.state }</TableCell></TableRow>
+                  <TableRow><TableCell variant="head">Type</TableCell><TableCell>{ foundation.type }</TableCell></TableRow>
+                  <TableRow><TableCell variant="head">Plot</TableCell><TableCell>{ foundation.plot }</TableCell></TableRow>
+                  <TableRow><TableCell variant="head">Blueprint</TableCell><TableCell><Link component={ RouterLink } to={ '/blueprint/f/' + foundation.blueprint }>{ foundation.blueprint }</Link></TableCell></TableRow>
+                  <TableRow><TableCell variant="head">Id Map</TableCell><TableCell>{ JSON.stringify( foundation.id_map ) }</TableCell></TableRow>
+                  <TableRow><TableCell variant="head">Interfaces</TableCell><TableCell><ul>{ this.state.interface_list.map( ( item, index ) => (
                     <li key={ index }>{ JSON.stringify( item ) }</li>
-                  ) ) }</ul></td></tr>
-                  <tr><th>Class List</th><td>{ foundation.class_list }</td></tr>
-                  <tr><th>Created</th><td>{ foundation.created }</td></tr>
-                  <tr><th>Updated</th><td>{ foundation.updated }</td></tr>
-                  <tr><th>Located At</th><td>{ foundation.located_at }</td></tr>
-                  <tr><th>Built At</th><td>{ foundation.built_at }</td></tr>
-                </tbody>
-              </table>
-              <h3>Depends on</h3>
-              <ul>
-              { this.state.foundationDependency_list.map( ( item ) => (
-                <li key={ item.id }><Link to={ '/dependency/' + item.id }>{ item.id }</Link> - Foundation: { item.foundation }  Structure: {  item.structure } Status: { item.state }</li>
-              ) ) }
-              </ul>
-            </div>
+                  ) ) }</ul></TableCell></TableRow>
+                  <TableRow><TableCell variant="head">Class List</TableCell><TableCell>{ foundation.class_list }</TableCell></TableRow>
+                  <TableRow><TableCell variant="head">Created</TableCell><TableCell>{ foundation.created }</TableCell></TableRow>
+                  <TableRow><TableCell variant="head">Updated</TableCell><TableCell>{ foundation.updated }</TableCell></TableRow>
+                  <TableRow><TableCell variant="head">Located At</TableCell><TableCell>{ foundation.located_at }</TableCell></TableRow>
+                  <TableRow><TableCell variant="head">Built At</TableCell><TableCell>{ foundation.built_at }</TableCell></TableRow>
+                </TableBody>
+              </Table>
+              <Typography variant="h6" sx={{ mt: 2 }}>Depends on</Typography>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Id</TableCell>
+                    <TableCell>Foundation</TableCell>
+                    <TableCell>Structure</TableCell>
+                    <TableCell>Status</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  { this.state.foundationDependency_list.map( ( item ) => (
+                    <TableRow key={ item.id }>
+                      <TableCell><Link component={ RouterLink } to={ '/dependency/' + item.id }>{ item.id }</Link></TableCell>
+                      <TableCell>{ item.foundation }</TableCell>
+                      <TableCell>{ item.structure }</TableCell>
+                      <TableCell>{ item.state }</TableCell>
+                    </TableRow>
+                  ) ) }
+                </TableBody>
+              </Table>
+            </Box>
           }
-        </div>
+        </Box>
       );
     }
 
     return (
-      <Table selectable={ false } multiSelectable={ false }>
+      <Table>
         <TableHead>
-          <TableCell numeric>Id</TableCell>
-          <TableCell>Locator</TableCell>
-          <TableCell>Type</TableCell>
-          <TableCell>State</TableCell>
-          <TableCell>Created</TableCell>
-          <TableCell>Updated</TableCell>
-        </TableHead>
-        { this.state.foundation_list.map( ( item ) => (
-          <TableRow key={ item.id }>
-            <TableCell numeric><Link to={ '/foundation/' + item.id }>{ item.id }</Link></TableCell>
-            <TableCell>{ item.locator }</TableCell>
-            <TableCell>{ item.type }</TableCell>
-            <TableCell>{ item.state }</TableCell>
-            <TableCell>{ item.created }</TableCell>
-            <TableCell>{ item.updated }</TableCell>
+          <TableRow>
+            <TableCell align="right">Id</TableCell>
+            <TableCell>Locator</TableCell>
+            <TableCell>Type</TableCell>
+            <TableCell>State</TableCell>
+            <TableCell>Created</TableCell>
+            <TableCell>Updated</TableCell>
           </TableRow>
-        ) ) }
+        </TableHead>
+        <TableBody>
+          { this.state.foundation_list.map( ( item ) => (
+            <TableRow key={ item.id }>
+              <TableCell align="right"><Link component={ RouterLink } to={ '/foundation/' + item.id }>{ item.id }</Link></TableCell>
+              <TableCell>{ item.locator }</TableCell>
+              <TableCell>{ item.type }</TableCell>
+              <TableCell>{ item.state }</TableCell>
+              <TableCell>{ item.created }</TableCell>
+              <TableCell>{ item.updated }</TableCell>
+            </TableRow>
+          ) ) }
+        </TableBody>
       </Table>
     );
 

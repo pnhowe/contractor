@@ -1,6 +1,6 @@
 import React from 'react';
 import CInP from './cinp';
-import { Table, TableHead, TableRow, TableCell } from 'react-toolbox';
+import { Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
 
 class JobLog extends React.Component
 {
@@ -13,10 +13,13 @@ class JobLog extends React.Component
     this.update( this.props );
   }
 
-  componentWillReceiveProps( newProps )
+  componentDidUpdate( prevProps )
   {
-    this.setState( { joblog_list: [] } );
-    this.update( newProps );
+    if ( prevProps.site !== this.props.site )
+    {
+      this.setState( { joblog_list: [] } );
+      this.update( this.props );
+    }
   }
 
   update( props )
@@ -50,33 +53,37 @@ class JobLog extends React.Component
   render()
   {
     return (
-      <Table selectable={ false } multiSelectable={ false }>
+      <Table>
         <TableHead>
-          <TableCell>Job Id</TableCell>
-          <TableCell>Site</TableCell>
-          <TableCell>Target Class</TableCell>
-          <TableCell>Target Description</TableCell>
-          <TableCell>Script Name</TableCell>
-          <TableCell>Creator</TableCell>
-          <TableCell>Started At</TableCell>
-          <TableCell>Finished At</TableCell>
-          <TableCell>Canceled By</TableCell>
-          <TableCell>Canceled At</TableCell>
-        </TableHead>
-        { this.state.joblog_list.map( ( item ) => (
-          <TableRow key={ item.id } >
-            <TableCell>{ item.job_id }</TableCell>
-            <TableCell>{ item.site }</TableCell>
-            <TableCell>{ item.target_class }</TableCell>
-            <TableCell>{ item.target_description }</TableCell>
-            <TableCell>{ item.script_name }</TableCell>
-            <TableCell>{ item.creator }</TableCell>
-            <TableCell>{ item.started_at }</TableCell>
-            <TableCell>{ item.finished_at }</TableCell>
-            <TableCell>{ item.canceled_by }</TableCell>
-            <TableCell>{ item.canceled_at }</TableCell>
+          <TableRow>
+            <TableCell>Job Id</TableCell>
+            <TableCell>Site</TableCell>
+            <TableCell>Target Class</TableCell>
+            <TableCell>Target Description</TableCell>
+            <TableCell>Script Name</TableCell>
+            <TableCell>Creator</TableCell>
+            <TableCell>Started At</TableCell>
+            <TableCell>Finished At</TableCell>
+            <TableCell>Canceled By</TableCell>
+            <TableCell>Canceled At</TableCell>
           </TableRow>
-        ) ) }
+        </TableHead>
+        <TableBody>
+          { this.state.joblog_list.map( ( item ) => (
+            <TableRow key={ item.id } >
+              <TableCell>{ item.job_id }</TableCell>
+              <TableCell>{ item.site }</TableCell>
+              <TableCell>{ item.target_class }</TableCell>
+              <TableCell>{ item.target_description }</TableCell>
+              <TableCell>{ item.script_name }</TableCell>
+              <TableCell>{ item.creator }</TableCell>
+              <TableCell>{ item.started_at }</TableCell>
+              <TableCell>{ item.finished_at }</TableCell>
+              <TableCell>{ item.canceled_by }</TableCell>
+              <TableCell>{ item.canceled_at }</TableCell>
+            </TableRow>
+          ) ) }
+        </TableBody>
       </Table>
     );
 

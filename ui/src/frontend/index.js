@@ -1,30 +1,36 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { createRoot } from 'react-dom/client';
 import App from './component/App';
-import { AppContainer } from 'react-hot-loader';
-import { overrideComponentTypeChecker } from 'react-toolbox';
 
 const rootEl = document.getElementById('app');
+const root = createRoot(rootEl);
 
-const render = () => {
-  ReactDOM.render(
-    <AppContainer>
-      <App />
-    </AppContainer>,
-    rootEl
-  );
-};
+const theme = createTheme({
+  palette: {
+    mode: 'dark',
+    primary: {
+      main: '#5893df',
+    },
+    secondary: {
+      main: '#2ec5d3',
+    },
+    background: {
+      default: '#192231',
+      paper: '#24344d',
+    },
+  },
+});
 
-if (process.env.NODE_ENV !== 'production') {
-  overrideComponentTypeChecker((classType, reactElement) => (
-    reactElement && (
-      reactElement.type === classType
-      || reactElement.type.name === classType.displayName
-    )
-  ));
-  if (module.hot) {
-    module.hot.accept('./component/App', render);
-  }
+root.render(
+  <ThemeProvider theme={ theme }>
+    <App />
+  </ThemeProvider>
+);
+
+if (module.hot) {
+  module.hot.accept('./component/App', () => {
+    const NextApp = require('./component/App').default;
+    render(NextApp);
+  });
 }
-
-render();

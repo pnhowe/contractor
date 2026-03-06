@@ -1,8 +1,7 @@
 import React from 'react';
 import CInP from './cinp';
-import ConfigDialog from './ConfigDialog';
-import { Table, TableHead, TableRow, TableCell } from 'react-toolbox';
-import { Link } from 'react-router-dom';
+import { Box, Link, Table, TableBody, TableCell, TableHead, TableRow, Typography } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 
 
 class Complex extends React.Component
@@ -17,10 +16,13 @@ class Complex extends React.Component
     this.update( this.props );
   }
 
-  componentWillReceiveProps( newProps )
+  componentDidUpdate( prevProps )
   {
-    this.setState( { complex_list: [], complex: null } );
-    this.update( newProps );
+    if ( prevProps.id !== this.props.id || prevProps.site !== this.props.site )
+    {
+      this.setState( { complex_list: [], complex: null } );
+      this.update( this.props );
+    }
   }
 
   update( props )
@@ -65,52 +67,53 @@ class Complex extends React.Component
     {
       var complex = this.state.complex;
       return (
-        <div>
-          <h3>Complex Detail</h3>
+        <Box>
+          <Typography variant="h5" gutterBottom>Complex Detail</Typography>
           { complex !== null &&
-            <div>
-              <table>
-                <thead/>
-                <tbody>
-                  <tr><th>Site</th><td><Link to={ '/site/' + complex.site }>{ complex.site }</Link></td></tr>
-                  <tr><th>Description</th><td>{ complex.description }</td></tr>
-                  <tr><th>Name</th><td>{ complex.name }</td></tr>
-                  <tr><th>State</th><td>{ complex.state }</td></tr>
-                  <tr><th>Type</th><td>{ complex.type }</td></tr>
-                  <tr><th>Members</th><td><ul>{ complex.members.map( ( item, index ) => (
-                    <li key={ index }>{ item }</li>
-                  ) ) }</ul></td></tr>
-                  <tr><th>Built at Percentage</th><td>{ complex.built_percentage }%</td></tr>
-                  <tr><th>Created</th><td>{ complex.created }</td></tr>
-                  <tr><th>Updated</th><td>{ complex.updated }</td></tr>
-                </tbody>
-              </table>
-            </div>
+            <Table size="small" sx={{ mt: 1 }}>
+              <TableBody>
+                <TableRow><TableCell variant="head">Site</TableCell><TableCell><Link component={ RouterLink } to={ '/site/' + complex.site }>{ complex.site }</Link></TableCell></TableRow>
+                <TableRow><TableCell variant="head">Description</TableCell><TableCell>{ complex.description }</TableCell></TableRow>
+                <TableRow><TableCell variant="head">Name</TableCell><TableCell>{ complex.name }</TableCell></TableRow>
+                <TableRow><TableCell variant="head">State</TableCell><TableCell>{ complex.state }</TableCell></TableRow>
+                <TableRow><TableCell variant="head">Type</TableCell><TableCell>{ complex.type }</TableCell></TableRow>
+                <TableRow><TableCell variant="head">Members</TableCell><TableCell><ul>{ complex.members.map( ( item, index ) => (
+                  <li key={ index }>{ item }</li>
+                ) ) }</ul></TableCell></TableRow>
+                <TableRow><TableCell variant="head">Built at Percentage</TableCell><TableCell>{ complex.built_percentage }%</TableCell></TableRow>
+                <TableRow><TableCell variant="head">Created</TableCell><TableCell>{ complex.created }</TableCell></TableRow>
+                <TableRow><TableCell variant="head">Updated</TableCell><TableCell>{ complex.updated }</TableCell></TableRow>
+              </TableBody>
+            </Table>
           }
-        </div>
+        </Box>
       );
     }
 
     return (
-      <Table selectable={ false } multiSelectable={ false }>
+      <Table>
         <TableHead>
-          <TableCell numeric>Id</TableCell>
-          <TableCell>Description</TableCell>
-          <TableCell>Type</TableCell>
-          <TableCell>State</TableCell>
-          <TableCell>Created</TableCell>
-          <TableCell>Updated</TableCell>
-        </TableHead>
-        { this.state.complex_list.map( ( item ) => (
-          <TableRow key={ item.id }>
-            <TableCell numeric><Link to={ '/complex/' + item.id }>{ item.id }</Link></TableCell>
-            <TableCell>{ item.description }</TableCell>
-            <TableCell>{ item.type }</TableCell>
-            <TableCell>{ item.state }</TableCell>
-            <TableCell>{ item.created }</TableCell>
-            <TableCell>{ item.updated }</TableCell>
+          <TableRow>
+            <TableCell align="right">Id</TableCell>
+            <TableCell>Description</TableCell>
+            <TableCell>Type</TableCell>
+            <TableCell>State</TableCell>
+            <TableCell>Created</TableCell>
+            <TableCell>Updated</TableCell>
           </TableRow>
-        ) ) }
+        </TableHead>
+        <TableBody>
+          { this.state.complex_list.map( ( item ) => (
+            <TableRow key={ item.id }>
+              <TableCell align="right"><Link component={ RouterLink } to={ '/complex/' + item.id }>{ item.id }</Link></TableCell>
+              <TableCell>{ item.description }</TableCell>
+              <TableCell>{ item.type }</TableCell>
+              <TableCell>{ item.state }</TableCell>
+              <TableCell>{ item.created }</TableCell>
+              <TableCell>{ item.updated }</TableCell>
+            </TableRow>
+          ) ) }
+        </TableBody>
       </Table>
     );
 

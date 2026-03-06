@@ -1,7 +1,7 @@
 import React from 'react';
 import CInP from './cinp';
-import { Table, TableHead, TableRow, TableCell } from 'react-toolbox';
-import { Link } from 'react-router-dom';
+import { Box, Link, Table, TableBody, TableCell, TableHead, TableRow, Typography } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 
 
 class Dependency extends React.Component
@@ -16,10 +16,13 @@ class Dependency extends React.Component
     this.update( this.props );
   }
 
-  componentWillReceiveProps( newProps )
+  componentDidUpdate( prevProps )
   {
-    this.setState( { dependency_list: [], dependency: null } );
-    this.update( newProps );
+    if ( prevProps.id !== this.props.id || prevProps.site !== this.props.site )
+    {
+      this.setState( { dependency_list: [], dependency: null } );
+      this.update( this.props );
+    }
   }
 
   update( props )
@@ -68,50 +71,53 @@ class Dependency extends React.Component
     {
       var dependency = this.state.dependency;
       return (
-        <div>
-          <h3>Dependency Detail</h3>
+        <Box>
+          <Typography variant="h5" gutterBottom>Dependency Detail</Typography>
           { dependency !== null &&
-            <table>
-              <thead/>
-              <tbody>
-                <tr><th>Structure</th><td><Link to={ '/structure/' + dependency.structure }>{ dependency.structure }</Link></td></tr>
-                <tr><th>Dependency</th><td><Link to={ '/dependency/' + dependency.dependency }>{ dependency.dependency }</Link></td></tr>
-                <tr><th>Foundation</th><td><Link to={ '/foundation/' + dependency.foundation }>{ dependency.foundation }</Link></td></tr>
-                <tr><th>Script Structure</th><td><Link to={ '/structure/' + dependency.script_structure }>{ dependency.script_structure }</Link></td></tr>
-                <tr><th>Create Script Name</th><td>{ dependency.create_script_name }</td></tr>
-                <tr><th>Destroy Script Name</th><td>{ dependency.destroy_script_name }</td></tr>
-                <tr><th>State</th><td>{ dependency.state }</td></tr>
-                <tr><th>Link</th><td>{ dependency.link }</td></tr>
-                <tr><th>Created</th><td>{ dependency.created }</td></tr>
-                <tr><th>Updated</th><td>{ dependency.updated }</td></tr>
-                <tr><th>Built At</th><td>{ dependency.built_at }</td></tr>
-              </tbody>
-            </table>
+            <Table size="small" sx={{ mt: 1 }}>
+              <TableBody>
+                <TableRow><TableCell variant="head">Structure</TableCell><TableCell><Link component={ RouterLink } to={ '/structure/' + dependency.structure }>{ dependency.structure }</Link></TableCell></TableRow>
+                <TableRow><TableCell variant="head">Dependency</TableCell><TableCell><Link component={ RouterLink } to={ '/dependency/' + dependency.dependency }>{ dependency.dependency }</Link></TableCell></TableRow>
+                <TableRow><TableCell variant="head">Foundation</TableCell><TableCell><Link component={ RouterLink } to={ '/foundation/' + dependency.foundation }>{ dependency.foundation }</Link></TableCell></TableRow>
+                <TableRow><TableCell variant="head">Script Structure</TableCell><TableCell><Link component={ RouterLink } to={ '/structure/' + dependency.script_structure }>{ dependency.script_structure }</Link></TableCell></TableRow>
+                <TableRow><TableCell variant="head">Create Script Name</TableCell><TableCell>{ dependency.create_script_name }</TableCell></TableRow>
+                <TableRow><TableCell variant="head">Destroy Script Name</TableCell><TableCell>{ dependency.destroy_script_name }</TableCell></TableRow>
+                <TableRow><TableCell variant="head">State</TableCell><TableCell>{ dependency.state }</TableCell></TableRow>
+                <TableRow><TableCell variant="head">Link</TableCell><TableCell>{ dependency.link }</TableCell></TableRow>
+                <TableRow><TableCell variant="head">Created</TableCell><TableCell>{ dependency.created }</TableCell></TableRow>
+                <TableRow><TableCell variant="head">Updated</TableCell><TableCell>{ dependency.updated }</TableCell></TableRow>
+                <TableRow><TableCell variant="head">Built At</TableCell><TableCell>{ dependency.built_at }</TableCell></TableRow>
+              </TableBody>
+            </Table>
           }
-        </div>
+        </Box>
       );
     }
 
     return (
-      <Table selectable={ false } multiSelectable={ false }>
+      <Table>
         <TableHead>
-          <TableCell numeric>Id</TableCell>
-          <TableCell>Foundation</TableCell>
-          <TableCell>Structure</TableCell>
-          <TableCell>State</TableCell>
-          <TableCell>Created</TableCell>
-          <TableCell>Updated</TableCell>
-        </TableHead>
-        { this.state.dependency_list.map( ( item ) => (
-          <TableRow key={ item.id }>
-            <TableCell numeric><Link to={ '/dependency/' + item.id }>{ item.id }</Link></TableCell>
-            <TableCell>{ item.foundation }</TableCell>
-            <TableCell>{ item.structure }</TableCell>
-            <TableCell>{ item.state }</TableCell>
-            <TableCell>{ item.created }</TableCell>
-            <TableCell>{ item.updated }</TableCell>
+          <TableRow>
+            <TableCell align="right">Id</TableCell>
+            <TableCell>Foundation</TableCell>
+            <TableCell>Structure</TableCell>
+            <TableCell>State</TableCell>
+            <TableCell>Created</TableCell>
+            <TableCell>Updated</TableCell>
           </TableRow>
-        ) ) }
+        </TableHead>
+        <TableBody>
+          { this.state.dependency_list.map( ( item ) => (
+            <TableRow key={ item.id }>
+              <TableCell align="right"><Link component={ RouterLink } to={ '/dependency/' + item.id }>{ item.id }</Link></TableCell>
+              <TableCell>{ item.foundation }</TableCell>
+              <TableCell>{ item.structure }</TableCell>
+              <TableCell>{ item.state }</TableCell>
+              <TableCell>{ item.created }</TableCell>
+              <TableCell>{ item.updated }</TableCell>
+            </TableRow>
+          ) ) }
+        </TableBody>
       </Table>
     );
 

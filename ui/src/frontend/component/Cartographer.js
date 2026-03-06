@@ -1,7 +1,7 @@
 import React from 'react';
 import CInP from './cinp';
-import { Table, TableHead, TableRow, TableCell } from 'react-toolbox';
-import { Link } from 'react-router-dom';
+import { Link, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 
 class Cartographer extends React.Component
 {
@@ -12,12 +12,6 @@ class Cartographer extends React.Component
   componentDidMount()
   {
     this.update( this.props );
-  }
-
-  componentWillReceiveProps( newProps )
-  {
-    this.setState( { cartographer_list: [] } );
-    this.update( newProps );
   }
 
   update( props )
@@ -47,25 +41,29 @@ class Cartographer extends React.Component
   render()
   {
     return (
-      <Table selectable={ false } multiSelectable={ false }>
+      <Table>
         <TableHead>
-          <TableCell>Identifier</TableCell>
-          <TableCell>Message</TableCell>
-          <TableCell>Foundation</TableCell>
-          <TableCell>Last Checkin</TableCell>
-          <TableCell>Created</TableCell>
-          <TableCell>Updated</TableCell>
-        </TableHead>
-        { this.state.cartographer_list.map( ( item ) => (
-          <TableRow key={ item.id } >
-            <TableCell>{ item.identifier }</TableCell>
-            <TableCell>{ item.message }</TableCell>
-            <TableCell><Link to={ '/plot/' + item.foundation }>{ item.foundation }</Link></TableCell>
-            <TableCell>{ item.last_checkin }</TableCell>
-            <TableCell>{ item.created }</TableCell>
-            <TableCell>{ item.updated }</TableCell>
+          <TableRow>
+            <TableCell>Identifier</TableCell>
+            <TableCell>Message</TableCell>
+            <TableCell>Foundation</TableCell>
+            <TableCell>Last Checkin</TableCell>
+            <TableCell>Created</TableCell>
+            <TableCell>Updated</TableCell>
           </TableRow>
-        ) ) }
+        </TableHead>
+        <TableBody>
+          { this.state.cartographer_list.map( ( item ) => (
+            <TableRow key={ item.id } >
+              <TableCell>{ item.identifier }</TableCell>
+              <TableCell>{ item.message }</TableCell>
+              <TableCell><Link component={ RouterLink } to={ '/plot/' + item.foundation }>{ item.foundation }</Link></TableCell>
+              <TableCell>{ item.last_checkin }</TableCell>
+              <TableCell>{ item.created }</TableCell>
+              <TableCell>{ item.updated }</TableCell>
+            </TableRow>
+          ) ) }
+        </TableBody>
       </Table>
     );
 
