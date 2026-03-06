@@ -1,6 +1,5 @@
 import React from 'react';
-import { Dialog } from 'react-toolbox';
-import theme from './ServerErrorTheme.css';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
 
 class ServerError extends React.Component
 {
@@ -24,23 +23,18 @@ class ServerError extends React.Component
     this.setState( { active: false } );
   };
 
-  actions = [
-    { label: "Close", onClick: this.close },
-  ];
-
   render()
   {
     return (
-  <Dialog
-    actions={ this.actions }
-    active={ this.state.active }
-    onEscKeyDown={ this.close }
-    onOverlayClick={ this.close }
-    title='Server Error'
-    theme={ theme }
-  >
-    <p>{ this.state.msg }</p>
-    <pre>{ this.state.trace }</pre>
+  <Dialog open={ this.state.active } onClose={ this.close } maxWidth="lg">
+    <DialogTitle>Server Error</DialogTitle>
+    <DialogContent>
+      <p>{ this.state.msg }</p>
+      <pre>{ this.state.trace }</pre>
+    </DialogContent>
+    <DialogActions>
+      <Button onClick={ this.close }>Close</Button>
+    </DialogActions>
   </Dialog>
 );
   }

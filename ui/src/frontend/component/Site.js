@@ -1,8 +1,8 @@
 import React from 'react';
 import CInP from './cinp';
 import ConfigDialog from './ConfigDialog';
-import { Table, TableHead, TableRow, TableCell } from 'react-toolbox';
-import { Link } from 'react-router-dom';
+import { Box, Link, Table, TableBody, TableCell, TableHead, TableRow, Typography } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 
 
 class Site extends React.Component
@@ -17,10 +17,13 @@ class Site extends React.Component
     this.update( this.props );
   }
 
-  componentWillReceiveProps( newProps )
+  componentDidUpdate( prevProps )
   {
-    this.setState( { site_list: [], site: null } );
-    this.update( newProps );
+    if ( prevProps.id !== this.props.id )
+    {
+      this.setState( { site_list: [], site: null } );
+      this.update( this.props );
+    }
   }
 
   update( props )
@@ -68,44 +71,61 @@ class Site extends React.Component
     {
       var site = this.state.site;
       return (
-        <div>
-          <h3>Site Detail</h3>
+        <Box>
+          <Typography variant="h5" gutterBottom>Site Detail</Typography>
           { site !== null &&
-            <div>
+            <Box>
               <ConfigDialog getConfig={ this.props.getConfig } uri={ '/api/v1/Site/Site:' + this.props.id + ':' } />
-              <table>
-                <thead/>
-                <tbody>
-                  <tr><th>Name</th><td>{ site.name }</td></tr>
-                  <tr><th>Parent</th><td><Link to={ '/site/' + site.parent }>{ site.parent }</Link></td></tr>
-                  <tr><th>Description</th><td>{ site.description }</td></tr>
-                  <tr><th>Config Values</th><td><table><thead/><tbody>{ site.config_values.map( ( value ) => ( <tr key={ value[0] }><th>{ value[0] }</th><td>{ JSON.stringify( value[1] ) }</td></tr> ) ) }</tbody></table></td></tr>
-                  <tr><th>Created</th><td>{ site.created }</td></tr>
-                  <tr><th>Updated</th><td>{ site.updated }</td></tr>
-                </tbody>
-              </table>
-            </div>
+              <Table size="small" sx={{ mt: 1 }}>
+                <TableBody>
+                  <TableRow><TableCell variant="head">Name</TableCell><TableCell>{ site.name }</TableCell></TableRow>
+                  <TableRow><TableCell variant="head">Parent</TableCell><TableCell><Link component={ RouterLink } to={ '/site/' + site.parent }>{ site.parent }</Link></TableCell></TableRow>
+                  <TableRow><TableCell variant="head">Description</TableCell><TableCell>{ site.description }</TableCell></TableRow>
+                  <TableRow>
+                    <TableCell variant="head">Config Values</TableCell>
+                    <TableCell>
+                      <Table size="small">
+                        <TableBody>
+                          { site.config_values.map( ( value ) => (
+                            <TableRow key={ value[0] }>
+                              <TableCell variant="head">{ value[0] }</TableCell>
+                              <TableCell>{ JSON.stringify( value[1] ) }</TableCell>
+                            </TableRow>
+                          ) ) }
+                        </TableBody>
+                      </Table>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow><TableCell variant="head">Created</TableCell><TableCell>{ site.created }</TableCell></TableRow>
+                  <TableRow><TableCell variant="head">Updated</TableCell><TableCell>{ site.updated }</TableCell></TableRow>
+                </TableBody>
+              </Table>
+            </Box>
           }
-        </div>
+        </Box>
       );
     }
 
     return (
-      <Table selectable={ false } multiSelectable={ false }>
+      <Table>
         <TableHead>
-          <TableCell>Name</TableCell>
-          <TableCell>Description</TableCell>
-          <TableCell>Created</TableCell>
-          <TableCell>Updated</TableCell>
-        </TableHead>
-        { this.state.site_list.map( ( item ) => (
-          <TableRow key={ item.name } >
-            <TableCell><Link to={ '/site/' + item.name }>{ item.name }</Link></TableCell>
-            <TableCell>{ item.description }</TableCell>
-            <TableCell>{ item.created }</TableCell>
-            <TableCell>{ item.updated }</TableCell>
+          <TableRow>
+            <TableCell>Name</TableCell>
+            <TableCell>Description</TableCell>
+            <TableCell>Created</TableCell>
+            <TableCell>Updated</TableCell>
           </TableRow>
-        ) ) }
+        </TableHead>
+        <TableBody>
+          { this.state.site_list.map( ( item ) => (
+            <TableRow key={ item.name } >
+              <TableCell><Link component={ RouterLink } to={ '/site/' + item.name }>{ item.name }</Link></TableCell>
+              <TableCell>{ item.description }</TableCell>
+              <TableCell>{ item.created }</TableCell>
+              <TableCell>{ item.updated }</TableCell>
+            </TableRow>
+          ) ) }
+        </TableBody>
       </Table>
     );
 

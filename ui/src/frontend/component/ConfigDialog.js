@@ -1,6 +1,5 @@
 import React from 'react';
-import { Dialog, Table, TableHead, TableRow, TableCell, Button } from 'react-toolbox';
-import theme from './ConfigDialogTheme.css';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
 
 class ConfigDialog extends React.Component
 {
@@ -29,37 +28,36 @@ class ConfigDialog extends React.Component
     this.setState( { active: false } );
   };
 
-  actions = [
-    { label: "Close", onClick: this.close },
-  ];
-
   render()
   {
     return (
-      <div>
-        <Dialog
-          actions={ this.actions }
-          active={ this.state.active }
-          onEscKeyDown={ this.close }
-          onOverlayClick={ this.close }
-          title='Full Config'
-          theme={ theme }
-        >
-          <Table selectable={ false } multiSelectable={ false }>
-            <TableHead>
-              <TableCell>Name</TableCell>
-              <TableCell>Value</TableCell>
-            </TableHead>
-          { this.state.item_list.map( ( item, index ) => (
-            <TableRow key={ index }>
-              <TableCell>{ item.name }</TableCell>
-              <TableCell>{ item.value }</TableCell>
-            </TableRow>
-          ) ) }
-          </Table>
+      <Box>
+        <Dialog open={ this.state.active } onClose={ this.close } maxWidth="lg">
+          <DialogTitle>Full Config</DialogTitle>
+          <DialogContent>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Name</TableCell>
+                  <TableCell>Value</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                { this.state.item_list.map( ( item, index ) => (
+                  <TableRow key={ index }>
+                    <TableCell>{ item.name }</TableCell>
+                    <TableCell>{ item.value }</TableCell>
+                  </TableRow>
+                ) ) }
+              </TableBody>
+            </Table>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={ this.close }>Close</Button>
+          </DialogActions>
         </Dialog>
         <Button onClick={ this.show }>Display Full Config</Button>
-      </div>
+      </Box>
 );
   }
 };

@@ -1,7 +1,7 @@
 import React from 'react';
 import CInP from './cinp';
-import { Table, TableHead, TableRow, TableCell } from 'react-toolbox';
-import { Link } from 'react-router-dom';
+import { Box, Link, Table, TableBody, TableCell, TableHead, TableRow, Typography } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 
 
 class AddressBlock extends React.Component
@@ -17,10 +17,13 @@ class AddressBlock extends React.Component
     this.update( this.props );
   }
 
-  componentWillReceiveProps( newProps )
+  componentDidUpdate( prevProps )
   {
-    this.setState( { addressBlock_list: [], addressBlock: null } );
-    this.update( newProps );
+    if ( prevProps.id !== this.props.id || prevProps.site !== this.props.site )
+    {
+      this.setState( { addressBlock_list: [], addressBlock: null } );
+      this.update( this.props );
+    }
   }
 
   update( props )
@@ -85,75 +88,82 @@ class AddressBlock extends React.Component
     {
       var addressBlock = this.state.addressBlock;
       return (
-        <div>
-          <h3>Address Block Detail</h3>
+        <Box>
+          <Typography variant="h5" gutterBottom>Address Block Detail</Typography>
           { addressBlock !== null &&
-            <div>
-              <table>
-                <thead/>
-                <tbody>
-                  <tr><th>Name</th><td>{ addressBlock.name }</td></tr>
-                  <tr><th>Site</th><td><Link to={ '/site/' + addressBlock.site }>{ addressBlock.site }</Link></td></tr>
-                  <tr><th>Subnet</th><td>{ addressBlock.subnet }</td></tr>
-                  <tr><th>Prefix</th><td>{ addressBlock.prefix }</td></tr>
-                  <tr><th>Gateway</th><td>{ addressBlock.gateway }</td></tr>
-                  <tr><th>Netmask</th><td>{ addressBlock.netmask }</td></tr>
-                  <tr><th>Size (Number of Ips)</th><td>{ addressBlock.size }</td></tr>
-                  <tr><th>IsIPv4</th><td>{ addressBlock.isIpV4 }</td></tr>
-                  <tr><th>Max Address</th><td>{ addressBlock._max_address }</td></tr>
-                  <tr><th>Created</th><td>{ addressBlock.created }</td></tr>
-                  <tr><th>Updated</th><td>{ addressBlock.updated }</td></tr>
-                </tbody>
-              </table>
-              <h3>Address List</h3>
-              <Table selectable={ false } multiSelectable={ false }>
-                <TableHead>
-                  <TableCell numeric>Id</TableCell>
-                  <TableCell>Type</TableCell>
-                  <TableCell>Ip Address</TableCell>
-                  <TableCell>Offset</TableCell>
-                  <TableCell>Reason/Networked</TableCell>
-                  <TableCell>Created</TableCell>
-                  <TableCell>Updated</TableCell>
-                </TableHead>
-                { this.state.addressBlockAddress_list.map( ( item ) => (
-                  <TableRow key={ item.id }>
-                    <TableCell numeric>{ item.id }</TableCell>
-                    <TableCell>{ item.type }</TableCell>
-                    <TableCell>{ item.ip_address }</TableCell>
-                    <TableCell>{ item.offset }</TableCell>
-                    <TableCell>{ item.reason } { item.networked }</TableCell>
-                    <TableCell>{ item.created }</TableCell>
-                    <TableCell>{ item.updated }</TableCell>
-                  </TableRow>
-                ) ) }
+            <Box>
+              <Table size="small" sx={{ mt: 1 }}>
+                <TableBody>
+                  <TableRow><TableCell variant="head">Name</TableCell><TableCell>{ addressBlock.name }</TableCell></TableRow>
+                  <TableRow><TableCell variant="head">Site</TableCell><TableCell><Link component={ RouterLink } to={ '/site/' + addressBlock.site }>{ addressBlock.site }</Link></TableCell></TableRow>
+                  <TableRow><TableCell variant="head">Subnet</TableCell><TableCell>{ addressBlock.subnet }</TableCell></TableRow>
+                  <TableRow><TableCell variant="head">Prefix</TableCell><TableCell>{ addressBlock.prefix }</TableCell></TableRow>
+                  <TableRow><TableCell variant="head">Gateway</TableCell><TableCell>{ addressBlock.gateway }</TableCell></TableRow>
+                  <TableRow><TableCell variant="head">Netmask</TableCell><TableCell>{ addressBlock.netmask }</TableCell></TableRow>
+                  <TableRow><TableCell variant="head">Size (Number of Ips)</TableCell><TableCell>{ addressBlock.size }</TableCell></TableRow>
+                  <TableRow><TableCell variant="head">IsIPv4</TableCell><TableCell>{ addressBlock.isIpV4 }</TableCell></TableRow>
+                  <TableRow><TableCell variant="head">Max Address</TableCell><TableCell>{ addressBlock._max_address }</TableCell></TableRow>
+                  <TableRow><TableCell variant="head">Created</TableCell><TableCell>{ addressBlock.created }</TableCell></TableRow>
+                  <TableRow><TableCell variant="head">Updated</TableCell><TableCell>{ addressBlock.updated }</TableCell></TableRow>
+                </TableBody>
               </Table>
-            </div>
+              <Typography variant="h6" sx={{ mt: 2 }}>Address List</Typography>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell align="right">Id</TableCell>
+                    <TableCell>Type</TableCell>
+                    <TableCell>Ip Address</TableCell>
+                    <TableCell>Offset</TableCell>
+                    <TableCell>Reason/Networked</TableCell>
+                    <TableCell>Created</TableCell>
+                    <TableCell>Updated</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  { this.state.addressBlockAddress_list.map( ( item ) => (
+                    <TableRow key={ item.id }>
+                      <TableCell align="right">{ item.id }</TableCell>
+                      <TableCell>{ item.type }</TableCell>
+                      <TableCell>{ item.ip_address }</TableCell>
+                      <TableCell>{ item.offset }</TableCell>
+                      <TableCell>{ item.reason } { item.networked }</TableCell>
+                      <TableCell>{ item.created }</TableCell>
+                      <TableCell>{ item.updated }</TableCell>
+                    </TableRow>
+                  ) ) }
+                </TableBody>
+              </Table>
+            </Box>
           }
-        </div>
+        </Box>
       );
     }
 
     return (
-      <Table selectable={ false } multiSelectable={ false }>
+      <Table>
         <TableHead>
-          <TableCell numeric>Id</TableCell>
-          <TableCell>Name</TableCell>
-          <TableCell>Subnet</TableCell>
-          <TableCell>Prefix</TableCell>
-          <TableCell>Created</TableCell>
-          <TableCell>Updated</TableCell>
-        </TableHead>
-        { this.state.addressBlock_list.map( ( item ) => (
-          <TableRow key={ item.id }>
-            <TableCell numeric><Link to={ '/addressblock/' + item.id }>{ item.id }</Link></TableCell>
-            <TableCell>{ item.name }</TableCell>
-            <TableCell>{ item.subnet }</TableCell>
-            <TableCell>{ item.prefix }</TableCell>
-            <TableCell>{ item.created }</TableCell>
-            <TableCell>{ item.updated }</TableCell>
+          <TableRow>
+            <TableCell align="right">Id</TableCell>
+            <TableCell>Name</TableCell>
+            <TableCell>Subnet</TableCell>
+            <TableCell>Prefix</TableCell>
+            <TableCell>Created</TableCell>
+            <TableCell>Updated</TableCell>
           </TableRow>
-        ) ) }
+        </TableHead>
+        <TableBody>
+          { this.state.addressBlock_list.map( ( item ) => (
+            <TableRow key={ item.id }>
+              <TableCell align="right"><Link component={ RouterLink } to={ '/addressblock/' + item.id }>{ item.id }</Link></TableCell>
+              <TableCell>{ item.name }</TableCell>
+              <TableCell>{ item.subnet }</TableCell>
+              <TableCell>{ item.prefix }</TableCell>
+              <TableCell>{ item.created }</TableCell>
+              <TableCell>{ item.updated }</TableCell>
+            </TableRow>
+          ) ) }
+        </TableBody>
       </Table>
     );
 

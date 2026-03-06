@@ -1,6 +1,5 @@
 import React from 'react';
-import { Dialog, Table, TableHead, TableRow, TableCell, Button } from 'react-toolbox';
-import theme from './JobStateDialogTheme.css';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Table, TableBody, TableCell, TableHead, TableRow, Typography } from '@mui/material';
 
 class JobStateDialog extends React.Component
 {
@@ -32,42 +31,41 @@ class JobStateDialog extends React.Component
     this.setState( { active: false } );
   };
 
-  actions = [
-    { label: "Close", onClick: this.close },
-  ];
-
   render()
   {
     return (
-      <div>
-        <Dialog
-          actions={ this.actions }
-          active={ this.state.active }
-          onEscKeyDown={ this.close }
-          onOverlayClick={ this.close }
-          title='Job State'
-          theme={ theme }
-        >
-          <div>
-            <pre>{ this.state.script }</pre>
-            <p>on line: <strong>{ this.state.cur_line }</strong></p>
-            <Table selectable={ false } multiSelectable={ false }>
-              <TableHead>
-                <TableCell>Name</TableCell>
-                <TableCell>Value</TableCell>
-              </TableHead>
-            { this.state.variable_list.map( ( item, index ) => (
-              <TableRow key={ index }>
-                <TableCell>{ item.name }</TableCell>
-                <TableCell>{ item.value }</TableCell>
-              </TableRow>
-            ) ) }
-            </Table>
-            <p>{ this.state.stack }</p>
-          </div>
+      <Box>
+        <Dialog open={ this.state.active } onClose={ this.close }>
+          <DialogTitle>Job State</DialogTitle>
+          <DialogContent>
+            <Box>
+              <pre>{ this.state.script }</pre>
+              <Typography>on line: <strong>{ this.state.cur_line }</strong></Typography>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Name</TableCell>
+                    <TableCell>Value</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  { this.state.variable_list.map( ( item, index ) => (
+                    <TableRow key={ index }>
+                      <TableCell>{ item.name }</TableCell>
+                      <TableCell>{ item.value }</TableCell>
+                    </TableRow>
+                  ) ) }
+                </TableBody>
+              </Table>
+              <Typography>{ this.state.stack }</Typography>
+            </Box>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={ this.close }>Close</Button>
+          </DialogActions>
         </Dialog>
         <Button onClick={ this.show }>Display Internal Job Info</Button>
-      </div>
+      </Box>
 );
   }
 };

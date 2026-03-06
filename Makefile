@@ -44,8 +44,6 @@ build-ui: ui/build/bundle.js $(ui_files)
 
 ui/node_modules.touch: ui/package.json ui/package-lock.json
 	cd ui && npm install
-	sed s/"export Ripple from '.\/ripple';"/"export { default as Ripple } from '.\/ripple';"/ -i ui/node_modules/react-toolbox/components/index.js
-	sed s/"export Tooltip from '.\/tooltip';"/"export { default as Tooltip } from '.\/tooltip';"/ -i ui/node_modules/react-toolbox/components/index.js
 	touch ui/node_modules.touch
 
 ui/build/bundle.js: $(wildcard ui/src/frontend/component/*) ui/src/frontend/index.js ui/node_modules.touch

@@ -1,7 +1,7 @@
 import React from 'react';
 import CInP from './cinp';
-import { Table, TableHead, TableRow, TableCell } from 'react-toolbox';
-import { Link } from 'react-router-dom';
+import { Box, Link, Table, TableBody, TableCell, TableHead, TableRow, Typography } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 
 
 class Plot extends React.Component
@@ -16,10 +16,13 @@ class Plot extends React.Component
     this.update( this.props );
   }
 
-  componentWillReceiveProps( newProps )
+  componentDidUpdate( prevProps )
   {
-    this.setState( { plot_list: [], plot: null } );
-    this.update( newProps );
+    if ( prevProps.id !== this.props.id )
+    {
+      this.setState( { plot_list: [], plot: null } );
+      this.update( this.props );
+    }
   }
 
   update( props )
@@ -61,40 +64,41 @@ class Plot extends React.Component
     {
       var plot = this.state.plot;
       return (
-        <div>
-          <h3>Plot Detail</h3>
+        <Box>
+          <Typography variant="h5" gutterBottom>Plot Detail</Typography>
           { plot !== null &&
-            <div>
-              <table>
-                <thead/>
-                <tbody>
-                  <tr><th>Name</th><td>{ plot.name }</td></tr>
-                  <tr><th>Parent</th><td><Link to={ '/plot/' + plot.parent }>{ plot.parent }</Link></td></tr>
-                  <tr><th>Corners</th><td>{ plot.corners }</td></tr>
-                  <tr><th>Created</th><td>{ plot.created }</td></tr>
-                  <tr><th>Updated</th><td>{ plot.updated }</td></tr>
-                </tbody>
-              </table>
-            </div>
+            <Table size="small" sx={{ mt: 1 }}>
+              <TableBody>
+                <TableRow><TableCell variant="head">Name</TableCell><TableCell>{ plot.name }</TableCell></TableRow>
+                <TableRow><TableCell variant="head">Parent</TableCell><TableCell><Link component={ RouterLink } to={ '/plot/' + plot.parent }>{ plot.parent }</Link></TableCell></TableRow>
+                <TableRow><TableCell variant="head">Corners</TableCell><TableCell>{ plot.corners }</TableCell></TableRow>
+                <TableRow><TableCell variant="head">Created</TableCell><TableCell>{ plot.created }</TableCell></TableRow>
+                <TableRow><TableCell variant="head">Updated</TableCell><TableCell>{ plot.updated }</TableCell></TableRow>
+              </TableBody>
+            </Table>
           }
-        </div>
+        </Box>
       );
     }
 
     return (
-      <Table selectable={ false } multiSelectable={ false }>
+      <Table>
         <TableHead>
-          <TableCell>Name</TableCell>
-          <TableCell>Created</TableCell>
-          <TableCell>Updated</TableCell>
-        </TableHead>
-        { this.state.plot_list.map( ( item ) => (
-          <TableRow key={ item.name } >
-            <TableCell><Link to={ '/plot/' + item.name }>{ item.name }</Link></TableCell>
-            <TableCell>{ item.created }</TableCell>
-            <TableCell>{ item.updated }</TableCell>
+          <TableRow>
+            <TableCell>Name</TableCell>
+            <TableCell>Created</TableCell>
+            <TableCell>Updated</TableCell>
           </TableRow>
-        ) ) }
+        </TableHead>
+        <TableBody>
+          { this.state.plot_list.map( ( item ) => (
+            <TableRow key={ item.name } >
+              <TableCell><Link component={ RouterLink } to={ '/plot/' + item.name }>{ item.name }</Link></TableCell>
+              <TableCell>{ item.created }</TableCell>
+              <TableCell>{ item.updated }</TableCell>
+            </TableRow>
+          ) ) }
+        </TableBody>
       </Table>
     );
 

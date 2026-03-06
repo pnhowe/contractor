@@ -1,9 +1,5 @@
 import React from 'react';
-import { Dropdown } from 'react-toolbox';
-import theme from './SiteSelectorTheme.css';
-
-// there is a problem with having to click twice
-// https://github.com/react-toolbox/react-toolbox/issues/1870
+import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 
 class SiteSelector extends React.Component
 {
@@ -11,15 +7,16 @@ class SiteSelector extends React.Component
     site_list: []
   }
 
-  handleChange = ( value ) =>
+  handleChange = ( event ) =>
   {
-    this.props.onSiteChange( value );
+    this.props.onSiteChange( event.target.value );
   }
 
-  componentWillReceiveProps( newProps )
+  componentDidUpdate( prevProps )
   {
-    if( newProps.curSite === null ){
-      this.componentDidMount()
+    if( prevProps.curSite === null )
+    {
+      this.componentDidMount();
     }
   }
 
@@ -47,7 +44,18 @@ class SiteSelector extends React.Component
   render()
   {
     return (
-<Dropdown title='Current Site' icon='cloud' auto onChange={this.handleChange} source={this.state.site_list} value={this.props.curSite} allowBlank={false} required={true} theme={theme}/>
+<FormControl size="small" sx={{ minWidth: 150 }}>
+  <InputLabel>Site</InputLabel>
+  <Select
+    value={ this.props.curSite || '' }
+    onChange={ this.handleChange }
+    label="Site"
+  >
+    { this.state.site_list.map( ( site ) => (
+      <MenuItem key={ site.value } value={ site.value }>{ site.label }</MenuItem>
+    ) ) }
+  </Select>
+</FormControl>
 );
   }
 };

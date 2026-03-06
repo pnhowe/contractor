@@ -1,8 +1,8 @@
 import React from 'react';
 import CInP from './cinp';
 import ConfigDialog from './ConfigDialog';
-import { Table, TableHead, TableRow, TableCell } from 'react-toolbox';
-import { Link } from 'react-router-dom';
+import { Box, Link, Table, TableBody, TableCell, TableHead, TableRow, Typography } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 
 
 class Structure extends React.Component
@@ -18,10 +18,13 @@ class Structure extends React.Component
     this.update( this.props );
   }
 
-  componentWillReceiveProps( newProps )
+  componentDidUpdate( prevProps )
   {
-    this.setState( { structure_list: [], structure: null } );
-    this.update( newProps );
+    if ( prevProps.id !== this.props.id || prevProps.site !== this.props.site )
+    {
+      this.setState( { structure_list: [], structure: null } );
+      this.update( this.props );
+    }
   }
 
   update( props )
@@ -88,60 +91,91 @@ class Structure extends React.Component
     {
       var structure = this.state.structure;
       return (
-        <div>
-          <h3>Structure Detail</h3>
+        <Box>
+          <Typography variant="h5" gutterBottom>Structure Detail</Typography>
           { structure !== null &&
-            <div>
+            <Box>
               <ConfigDialog getConfig={ this.props.getConfig } uri={ '/api/v1/Building/Structure:' + this.props.id + ':' } />
-              <table>
-                <thead/>
-                <tbody>
-                  <tr><th>Site</th><td><Link to={ '/site/' + structure.site }>{ structure.site }</Link></td></tr>
-                  <tr><th>Foundation</th><td><Link to={ '/foundation/' + structure.foundation }>{ structure.foundation }</Link></td></tr>
-                  <tr><th>Hostname</th><td>{ structure.hostname }</td></tr>
-                  <tr><th>State</th><td>{ structure.state }</td></tr>
-                  <tr><th>Type</th><td>{ structure.type }</td></tr>
-                  <tr><th>Blueprint</th><td><Link to={ '/blueprint/s/' + structure.blueprint }>{ structure.blueprint }</Link></td></tr>
-                  <tr><th>Config UUID</th><td>{ structure.config_uuid }</td></tr>
-                  <tr><th>Config Values</th><td><table><thead/><tbody>{ structure.config_values.map( ( item, index ) => ( <tr key={ index }><th>{ item[0] }</th><td>{ item[1] }</td></tr> ) ) }</tbody></table></td></tr>
-                  <tr><th>Created</th><td>{ structure.created }</td></tr>
-                  <tr><th>Updated</th><td>{ structure.updated }</td></tr>
-                  <tr><th>Built At</th><td>{ structure.built_at }</td></tr>
-                  <tr><th colSpan="2">Ip Addresses</th></tr>
-                  <tr><td colSpan="2"><table>
-                  <thead><tr><th>Offset</th><th>Ip Address</th><th>Interface</th><th>Created</th><th>Updated</th></tr></thead>
-                  <tbody>
+              <Table size="small" sx={{ mt: 1 }}>
+                <TableBody>
+                  <TableRow><TableCell variant="head">Site</TableCell><TableCell><Link component={ RouterLink } to={ '/site/' + structure.site }>{ structure.site }</Link></TableCell></TableRow>
+                  <TableRow><TableCell variant="head">Foundation</TableCell><TableCell><Link component={ RouterLink } to={ '/foundation/' + structure.foundation }>{ structure.foundation }</Link></TableCell></TableRow>
+                  <TableRow><TableCell variant="head">Hostname</TableCell><TableCell>{ structure.hostname }</TableCell></TableRow>
+                  <TableRow><TableCell variant="head">State</TableCell><TableCell>{ structure.state }</TableCell></TableRow>
+                  <TableRow><TableCell variant="head">Type</TableCell><TableCell>{ structure.type }</TableCell></TableRow>
+                  <TableRow><TableCell variant="head">Blueprint</TableCell><TableCell><Link component={ RouterLink } to={ '/blueprint/s/' + structure.blueprint }>{ structure.blueprint }</Link></TableCell></TableRow>
+                  <TableRow><TableCell variant="head">Config UUID</TableCell><TableCell>{ structure.config_uuid }</TableCell></TableRow>
+                  <TableRow>
+                    <TableCell variant="head">Config Values</TableCell>
+                    <TableCell>
+                      <Table size="small">
+                        <TableBody>
+                          { structure.config_values.map( ( item, index ) => (
+                            <TableRow key={ index }>
+                              <TableCell variant="head">{ item[0] }</TableCell>
+                              <TableCell>{ item[1] }</TableCell>
+                            </TableRow>
+                          ) ) }
+                        </TableBody>
+                      </Table>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow><TableCell variant="head">Created</TableCell><TableCell>{ structure.created }</TableCell></TableRow>
+                  <TableRow><TableCell variant="head">Updated</TableCell><TableCell>{ structure.updated }</TableCell></TableRow>
+                  <TableRow><TableCell variant="head">Built At</TableCell><TableCell>{ structure.built_at }</TableCell></TableRow>
+                </TableBody>
+              </Table>
+              <Typography variant="h6" sx={{ mt: 2 }}>IP Addresses</Typography>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Offset</TableCell>
+                    <TableCell>Ip Address</TableCell>
+                    <TableCell>Interface</TableCell>
+                    <TableCell>Created</TableCell>
+                    <TableCell>Updated</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
                   { this.state.address_list.map( ( item ) => (
-                    <tr key={ item.id }><td>{ item.offset }</td><td>{ item.ip_address }</td><td>{ item.interface_name }</td><td>{ item.created }</td><td>{ item.updated }</td></tr>
+                    <TableRow key={ item.id }>
+                      <TableCell>{ item.offset }</TableCell>
+                      <TableCell>{ item.ip_address }</TableCell>
+                      <TableCell>{ item.interface_name }</TableCell>
+                      <TableCell>{ item.created }</TableCell>
+                      <TableCell>{ item.updated }</TableCell>
+                    </TableRow>
                   ) ) }
-                  </tbody>
-                  </table></td></tr>
-                </tbody>
-              </table>
-            </div>
+                </TableBody>
+              </Table>
+            </Box>
           }
-        </div>
+        </Box>
       );
     }
 
     return (
-      <Table selectable={ false } multiSelectable={ false }>
+      <Table>
         <TableHead>
-          <TableCell numeric>Id</TableCell>
-          <TableCell>Hostname</TableCell>
-          <TableCell>State</TableCell>
-          <TableCell>Created</TableCell>
-          <TableCell>Updated</TableCell>
-        </TableHead>
-        { this.state.structure_list.map( ( item ) => (
-          <TableRow key={ item.id }>
-            <TableCell numeric><Link to={ '/structure/' + item.id }>{ item.id }</Link></TableCell>
-            <TableCell>{ item.hostname }</TableCell>
-            <TableCell>{ item.state }</TableCell>
-            <TableCell>{ item.created }</TableCell>
-            <TableCell>{ item.updated }</TableCell>
+          <TableRow>
+            <TableCell align="right">Id</TableCell>
+            <TableCell>Hostname</TableCell>
+            <TableCell>State</TableCell>
+            <TableCell>Created</TableCell>
+            <TableCell>Updated</TableCell>
           </TableRow>
-        ) ) }
+        </TableHead>
+        <TableBody>
+          { this.state.structure_list.map( ( item ) => (
+            <TableRow key={ item.id }>
+              <TableCell align="right"><Link component={ RouterLink } to={ '/structure/' + item.id }>{ item.id }</Link></TableCell>
+              <TableCell>{ item.hostname }</TableCell>
+              <TableCell>{ item.state }</TableCell>
+              <TableCell>{ item.created }</TableCell>
+              <TableCell>{ item.updated }</TableCell>
+            </TableRow>
+          ) ) }
+        </TableBody>
       </Table>
     );
 

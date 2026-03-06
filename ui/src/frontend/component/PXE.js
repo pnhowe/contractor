@@ -1,8 +1,7 @@
 import React from 'react';
 import CInP from './cinp';
-import ConfigDialog from './ConfigDialog';
-import { Table, TableHead, TableRow, TableCell } from 'react-toolbox';
-import { Link } from 'react-router-dom';
+import { Box, Link, Table, TableBody, TableCell, TableHead, TableRow, Typography } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 
 
 class PXE extends React.Component
@@ -17,10 +16,13 @@ class PXE extends React.Component
     this.update( this.props );
   }
 
-  componentWillReceiveProps( newProps )
+  componentDidUpdate( prevProps )
   {
-    this.setState( { pxe_list: [], pxe: null } );
-    this.update( newProps );
+    if ( prevProps.id !== this.props.id )
+    {
+      this.setState( { pxe_list: [], pxe: null } );
+      this.update( this.props );
+    }
   }
 
   update( props )
@@ -61,40 +63,41 @@ class PXE extends React.Component
     {
       var pxe = this.state.pxe;
       return (
-        <div>
-          <h3>PXE Detail</h3>
+        <Box>
+          <Typography variant="h5" gutterBottom>PXE Detail</Typography>
           { pxe !== null &&
-            <div>
-              <table>
-                <thead/>
-                <tbody>
-                  <tr><th>Name</th><td>{ pxe.name }</td></tr>
-                  <tr><th>Boot Script</th><td><pre>{ pxe.boot_script }</pre></td></tr>
-                  <tr><th>Template</th><td><pre>{ pxe.template }</pre></td></tr>
-                  <tr><th>Created</th><td>{ pxe.created }</td></tr>
-                  <tr><th>Updated</th><td>{ pxe.updated }</td></tr>
-                </tbody>
-              </table>
-            </div>
+            <Table size="small" sx={{ mt: 1 }}>
+              <TableBody>
+                <TableRow><TableCell variant="head">Name</TableCell><TableCell>{ pxe.name }</TableCell></TableRow>
+                <TableRow><TableCell variant="head">Boot Script</TableCell><TableCell><pre>{ pxe.boot_script }</pre></TableCell></TableRow>
+                <TableRow><TableCell variant="head">Template</TableCell><TableCell><pre>{ pxe.template }</pre></TableCell></TableRow>
+                <TableRow><TableCell variant="head">Created</TableCell><TableCell>{ pxe.created }</TableCell></TableRow>
+                <TableRow><TableCell variant="head">Updated</TableCell><TableCell>{ pxe.updated }</TableCell></TableRow>
+              </TableBody>
+            </Table>
           }
-        </div>
+        </Box>
       );
     }
 
     return (
-      <Table selectable={ false } multiSelectable={ false }>
+      <Table>
         <TableHead>
-          <TableCell>Name</TableCell>
-          <TableCell>Created</TableCell>
-          <TableCell>Updated</TableCell>
-        </TableHead>
-        { this.state.pxe_list.map( ( item ) => (
-          <TableRow key={ item.name } >
-            <TableCell><Link to={ '/pxe/' + item.name }>{ item.name }</Link></TableCell>
-            <TableCell>{ item.created }</TableCell>
-            <TableCell>{ item.updated }</TableCell>
+          <TableRow>
+            <TableCell>Name</TableCell>
+            <TableCell>Created</TableCell>
+            <TableCell>Updated</TableCell>
           </TableRow>
-        ) ) }
+        </TableHead>
+        <TableBody>
+          { this.state.pxe_list.map( ( item ) => (
+            <TableRow key={ item.name } >
+              <TableCell><Link component={ RouterLink } to={ '/pxe/' + item.name }>{ item.name }</Link></TableCell>
+              <TableCell>{ item.created }</TableCell>
+              <TableCell>{ item.updated }</TableCell>
+            </TableRow>
+          ) ) }
+        </TableBody>
       </Table>
     );
 

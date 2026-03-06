@@ -70,13 +70,16 @@ class SiteGraph extends React.Component
 
   componentDidMount()
   {
-    this.update( this.props );
+    document.fonts.load( '50px "Material Icons"' ).then( () => this.update( this.props ) );
   }
 
-  componentWillReceiveProps( newProps )
+  componentDidUpdate( prevProps )
   {
-    this.setState( { complex_list: [], complex: null } );
-    this.update( newProps );
+    if ( prevProps.site !== this.props.site )
+    {
+      this.setState( { complex_list: [], complex: null } );
+      this.update( this.props );
+    }
   }
 
   update( props )

@@ -1,7 +1,8 @@
 import React from 'react';
+import { Typography } from '@mui/material';
 
 const Home = ( { match } ) => (
-  <div><h1>Contractor</h1></div>
+  <Typography variant="h4">Contractor</Typography>
 );
 
-export default Home
+export default Home;

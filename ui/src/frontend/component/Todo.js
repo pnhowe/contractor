@@ -1,7 +1,7 @@
 import React from 'react';
 import CInP from './cinp';
-import { Table, TableHead, TableRow, TableCell, Dropdown, Checkbox, List, ListItem, ListCheckbox } from 'react-toolbox';
-import { Link } from 'react-router-dom';
+import { Box, Checkbox, FormControl, FormControlLabel, InputLabel, Link, MenuItem, Select, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 
 
 class Todo extends React.Component
@@ -13,7 +13,7 @@ class Todo extends React.Component
     .then( ( result ) =>
     {
       var foundationClass_list = []
-      foundationClass_list.push( { value: null, label: '<All>' } )
+      foundationClass_list.push( { value: '', label: '<All>' } )
       for ( var index in result.data )
       {
         foundationClass_list.push( { value: result.data[ index ], label: result.data[ index ] } );
@@ -27,7 +27,7 @@ class Todo extends React.Component
       foundation_list: [],
       foundationClass_list: [],
       hasDependancies: false,
-      foundationClass: null
+      foundationClass: ''
   };
 
   handleOptionChange = ( field, value ) =>
@@ -35,9 +35,9 @@ class Todo extends React.Component
     this.setState( { [ field ]: value }, () => this.update( this.props ) );
   };
 
-  handleClassChange = ( value ) =>
+  handleClassChange = ( event ) =>
   {
-    this.setState( { foundationClass: value }, () => this.update( this.props ) );
+    this.setState( { foundationClass: event.target.value || null }, () => this.update( this.props ) );
   };
 
   componentDidMount()
@@ -45,15 +45,18 @@ class Todo extends React.Component
     this.update( this.props );
   };
 
-  componentWillReceiveProps( newProps )
+  componentDidUpdate( prevProps )
   {
-    this.setState( { foundation_list: [] } );
-    this.update( newProps );
+    if ( prevProps.site !== this.props.site )
+    {
+      this.setState( { foundation_list: [] } );
+      this.update( this.props );
+    }
   }
 
   update( props )
   {
-    props.listGet( props.site, this.state.hasDependancies, this.state.foundationClass )
+    props.listGet( props.site, this.state.hasDependancies, this.state.foundationClass || null )
       .then( ( result ) =>
       {
         var foundation_list = [];
@@ -77,34 +80,55 @@ class Todo extends React.Component
   render()
   {
     return (
-      <div>
-        <List>
-          <ListCheckbox checked={ this.state.hasDependancies } onChange={ this.handleOptionChange.bind( this, 'hasDependancies' ) } caption="Has Dependancies"/>
-          <ListItem caption="Foundation Class">
-             <Dropdown auto onChange={ this.handleClassChange } source={ this.state.foundationClass_list } value={ this.state.foundationClass } allowBlank={false} />
-          </ListItem>
-        </List>
-        <Table selectable={ false } multiSelectable={ false }>
+      <Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={ this.state.hasDependancies }
+                onChange={ (e) => this.handleOptionChange( 'hasDependancies', e.target.checked ) }
+              />
+            }
+            label="Has Dependancies"
+          />
+          <FormControl size="small" sx={{ minWidth: 150 }}>
+            <InputLabel>Foundation Class</InputLabel>
+            <Select
+              value={ this.state.foundationClass || '' }
+              onChange={ this.handleClassChange }
+              label="Foundation Class"
+            >
+              { this.state.foundationClass_list.map( ( item ) => (
+                <MenuItem key={ item.value } value={ item.value }>{ item.label }</MenuItem>
+              ) ) }
+            </Select>
+          </FormControl>
+        </Box>
+        <Table>
           <TableHead>
-            <TableCell numeric>Id</TableCell>
-            <TableCell>Locator</TableCell>
-            <TableCell>Num Dependants</TableCell>
-            <TableCell>Complex</TableCell>
-            <TableCell>Created</TableCell>
-            <TableCell>Updated</TableCell>
-          </TableHead>
-          { this.state.foundation_list.map( ( item ) => (
-            <TableRow key={ item.id }>
-              <TableCell numeric><Link to={ '/foundation/' + item.id }>{ item.id }</Link></TableCell>
-              <TableCell>{ item.locator }</TableCell>
-              <TableCell>{ item.dependencyCount }</TableCell>
-              <TableCell>{ item.complex }</TableCell>
-              <TableCell>{ item.created }</TableCell>
-              <TableCell>{ item.updated }</TableCell>
+            <TableRow>
+              <TableCell align="right">Id</TableCell>
+              <TableCell>Locator</TableCell>
+              <TableCell>Num Dependants</TableCell>
+              <TableCell>Complex</TableCell>
+              <TableCell>Created</TableCell>
+              <TableCell>Updated</TableCell>
             </TableRow>
-          ) ) }
+          </TableHead>
+          <TableBody>
+            { this.state.foundation_list.map( ( item ) => (
+              <TableRow key={ item.id }>
+                <TableCell align="right"><Link component={ RouterLink } to={ '/foundation/' + item.id }>{ item.id }</Link></TableCell>
+                <TableCell>{ item.locator }</TableCell>
+                <TableCell>{ item.dependencyCount }</TableCell>
+                <TableCell>{ item.complex }</TableCell>
+                <TableCell>{ item.created }</TableCell>
+                <TableCell>{ item.updated }</TableCell>
+              </TableRow>
+            ) ) }
+          </TableBody>
         </Table>
-      </div>
+      </Box>
     );
 
   }
