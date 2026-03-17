@@ -256,7 +256,8 @@ class App extends React.Component
       component="main"
       sx={{
         flexGrow: 1,
-        minWidth: 0
+        minWidth: 0,
+        p: 2
       }}
     >
       <Toolbar />

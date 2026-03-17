@@ -2,7 +2,7 @@ import React from 'react';
 import CInP from './cinp';
 import Graph from 'react-graph-vis';
 
-const stateColorMap = { 'planned': '#88FF88', 'located': '#8888FF', 'built': '#000000' };
+const stateColorMap = { 'planned': '#88FF88', 'located': '#8888FF', 'built': '#FFFFFF' };
 
 class SiteGraph extends React.Component
 {
@@ -23,8 +23,14 @@ class SiteGraph extends React.Component
       improvedLayout: true
     },
     edges: {
-      color: "#000000",
+      color: "#0999",
       arrows: 'to'
+    },
+    nodes: {
+      font: {
+          size: 20,
+          color: '#0DDD'
+      },
     },
     groups: {
       Structure: {
