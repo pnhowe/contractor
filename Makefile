@@ -40,16 +40,16 @@ dist-clean: clean
 
 ui_files := $(foreach file,$(wildcard ui/src/www/*),ui/build/$(notdir $(file)))
 
-build-ui: ui/build/bundle.js $(ui_files)
+build-ui: ui/build/main.js $(ui_files)
 
 ui/node_modules.touch: ui/package.json ui/package-lock.json
 	cd ui && npm install
 	touch ui/node_modules.touch
 
-ui/build/bundle.js: $(wildcard ui/src/frontend/component/*) ui/src/frontend/index.js ui/node_modules.touch
+ui/build/main.js: $(wildcard ui/src/frontend/*) ui/src/frontend/index.js ui/node_modules.touch
 	cd ui && npm run build
 
-ui/build/%: ui/build/bundle.js
+ui/build/%: ui/build/main.js
 	cp ui/src/www/$(notdir $@) $@
 
 install-ui: build-ui

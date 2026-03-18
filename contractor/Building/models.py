@@ -397,15 +397,11 @@ class Foundation( models.Model ):
     return 'Foundation "{0}" in "{1}"'.format( self.locator, self.site.pk )
 
 
-def getUUID():
-  return str( uuid.uuid4() )
-
-
 @cinp.model( property_list=( 'state', ), read_only_list=( 'config_uuid', ) )
 class Structure( Networked ):
   blueprint = models.ForeignKey( StructureBluePrint, on_delete=models.PROTECT )  # ie what to bild
-  foundation = models.OneToOneField( Foundation, related_name='+', on_delete=models.PROTECT )      # ie what to build it on
-  config_uuid = models.CharField( max_length=36, default=getUUID, unique=True )  # TODO: make sure the uuid isn't allready used?, it is a really big set space, not sure if it is really needed
+  foundation = models.OneToOneField( Foundation, related_name='+', on_delete=models.PROTECT )  # ie what to build it on
+  config_uuid = models.CharField( max_length=36, unique=True )
   config_values = MapField( blank=True, null=True )
   built_at = models.DateTimeField( editable=False, blank=True, null=True )
   updated = models.DateTimeField( editable=False, auto_now=True )
@@ -568,6 +564,9 @@ class Structure( Networked ):
   def clean( self, *args, **kwargs ):
     super().clean( *args, **kwargs )
     errors = {}
+
+    if not self.config_uuid:
+      self.config_uuid = str( uuid.uuid4() )
 
     if self.foundation_id is not None and self.foundation.blueprint not in self.blueprint.combined_foundation_blueprint_list:
       errors[ 'foundation' ] = 'The blueprint "{0}" is not allowed on foundation "{1}"'.format( self.blueprint, self.foundation.blueprint )

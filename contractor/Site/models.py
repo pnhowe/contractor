@@ -70,7 +70,7 @@ class Site( models.Model ):
       try:
         dependency_list += [ foundation.complex.dependencyId ]
         if foundation.complex.site != self:
-          external_list += [ foundation.complex  ]
+          external_list += [ foundation.complex ]
       except AttributeError:
         pass
 
