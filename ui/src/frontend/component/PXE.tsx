@@ -16,6 +16,7 @@ const PXE: React.FC<Props> = ( { id } ) =>
 {
   const dispatch = useDispatch<AppDispatch>();
   const authenticated = useSelector( ( s: RootState ) => s.app.authenticated );
+  const updateVersion = useSelector( ( s: RootState ) => s.app.updateVersion );
   const { list, detail, loading, error } = useSelector( ( s: RootState ) => s.pxe );
 
   const fetchData = useCallback( () =>
@@ -23,7 +24,7 @@ const PXE: React.FC<Props> = ( { id } ) =>
     if ( !authenticated ) return;
     if ( id !== undefined ) dispatch( fetchPXE( id ) );
     else dispatch( fetchPXEList() );
-  }, [authenticated, dispatch, id] );
+  }, [authenticated, dispatch, id, updateVersion] );
 
   useEffect( () => { fetchData(); }, [fetchData] );
 

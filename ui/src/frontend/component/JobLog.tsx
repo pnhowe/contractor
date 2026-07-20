@@ -13,6 +13,7 @@ const JobLog: React.FC<Props> = ( { site } ) =>
 {
   const dispatch = useDispatch<AppDispatch>();
   const authenticated = useSelector( ( s: RootState ) => s.app.authenticated );
+  const updateVersion = useSelector( ( s: RootState ) => s.app.updateVersion );
   const { list, loading, error } = useSelector( ( s: RootState ) => s.jobLog );
   const [page, setPage] = useState( 0 );
   const [rowsPerPage, setRowsPerPage] = useState( 25 );
@@ -21,7 +22,7 @@ const JobLog: React.FC<Props> = ( { site } ) =>
   {
     if ( !authenticated ) return;
     dispatch( fetchJobLogList( site ?? '' ) );
-  }, [authenticated, dispatch, site] );
+  }, [authenticated, dispatch, site, updateVersion] );
 
   useEffect( () => { fetchData(); }, [fetchData] );
 

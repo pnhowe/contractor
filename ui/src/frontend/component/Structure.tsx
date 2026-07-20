@@ -18,6 +18,7 @@ const Structure: React.FC<Props> = ( { id, site } ) =>
 {
   const dispatch = useDispatch<AppDispatch>();
   const authenticated = useSelector( ( s: RootState ) => s.app.authenticated );
+  const updateVersion = useSelector( ( s: RootState ) => s.app.updateVersion );
   const { list, detail, loading, error } = useSelector( ( s: RootState ) => s.structures );
   const [page, setPage] = useState( 0 );
   const [rowsPerPage, setRowsPerPage] = useState( 25 );
@@ -27,7 +28,7 @@ const Structure: React.FC<Props> = ( { id, site } ) =>
     if ( !authenticated ) return;
     if ( id !== undefined ) dispatch( fetchStructure( id ) );
     else dispatch( fetchStructureList( site ?? '' ) );
-  }, [authenticated, dispatch, id, site] );
+  }, [authenticated, dispatch, id, site, updateVersion] );
 
   useEffect( () => { fetchData(); }, [fetchData] );
 

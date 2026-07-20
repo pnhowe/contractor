@@ -15,6 +15,7 @@ const Plot: React.FC<Props> = ( { id } ) =>
 {
   const dispatch = useDispatch<AppDispatch>();
   const authenticated = useSelector( ( s: RootState ) => s.app.authenticated );
+  const updateVersion = useSelector( ( s: RootState ) => s.app.updateVersion );
   const { list, detail, loading, error } = useSelector( ( s: RootState ) => s.plots );
 
   const fetchData = useCallback( () =>
@@ -22,7 +23,7 @@ const Plot: React.FC<Props> = ( { id } ) =>
     if ( !authenticated ) return;
     if ( id !== undefined ) dispatch( fetchPlot( id ) );
     else dispatch( fetchPlotList() );
-  }, [authenticated, dispatch, id] );
+  }, [authenticated, dispatch, id, updateVersion] );
 
   useEffect( () => { fetchData(); }, [fetchData] );
 

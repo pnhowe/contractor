@@ -46,7 +46,7 @@ ui/node_modules.touch: ui/package.json ui/package-lock.json
 	cd ui && npm install
 	touch ui/node_modules.touch
 
-ui/build/main.js: $(wildcard ui/src/frontend/*) ui/src/frontend/index.js ui/node_modules.touch
+ui/build/main.js: $(wildcard ui/src/frontend/*) ui/src/frontend/index.tsx ui/node_modules.touch
 	cd ui && npm run build
 
 ui/build/%: ui/build/main.js

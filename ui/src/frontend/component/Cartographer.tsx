@@ -10,13 +10,14 @@ const Cartographer: React.FC = () =>
 {
   const dispatch = useDispatch<AppDispatch>();
   const authenticated = useSelector( ( s: RootState ) => s.app.authenticated );
+  const updateVersion = useSelector( ( s: RootState ) => s.app.updateVersion );
   const { list, loading, error } = useSelector( ( s: RootState ) => s.cartographer );
 
   const fetchData = useCallback( () =>
   {
     if ( !authenticated ) return;
     dispatch( fetchCartographerList() );
-  }, [authenticated, dispatch] );
+  }, [authenticated, dispatch, updateVersion] );
 
   useEffect( () => { fetchData(); }, [fetchData] );
 

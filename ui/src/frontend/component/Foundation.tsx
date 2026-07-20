@@ -20,6 +20,7 @@ const Foundation: React.FC<Props> = ( { id, site } ) =>
 {
   const dispatch = useDispatch<AppDispatch>();
   const authenticated = useSelector( ( s: RootState ) => s.app.authenticated );
+  const updateVersion = useSelector( ( s: RootState ) => s.app.updateVersion );
   const { list, detail, loading, error } = useSelector( ( s: RootState ) => s.foundations );
   const [page, setPage] = useState( 0 );
   const [rowsPerPage, setRowsPerPage] = useState( 25 );
@@ -29,7 +30,7 @@ const Foundation: React.FC<Props> = ( { id, site } ) =>
     if ( !authenticated ) return;
     if ( id !== undefined ) dispatch( fetchFoundation( id ) );
     else dispatch( fetchFoundationList( site ?? '' ) );
-  }, [authenticated, dispatch, id, site] );
+  }, [authenticated, dispatch, id, site, updateVersion] );
 
   useEffect( () => { fetchData(); }, [fetchData] );
 

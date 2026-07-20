@@ -20,6 +20,7 @@ const BluePrint: React.FC<Props> = ( { id, blueprintType } ) =>
 {
   const dispatch = useDispatch<AppDispatch>();
   const authenticated = useSelector( ( s: RootState ) => s.app.authenticated );
+  const updateVersion = useSelector( ( s: RootState ) => s.app.updateVersion );
   const { listF, listS, detail, loading, error } = useSelector( ( s: RootState ) => s.blueprints );
 
   const fetchData = useCallback( () =>
@@ -35,7 +36,7 @@ const BluePrint: React.FC<Props> = ( { id, blueprintType } ) =>
       dispatch( fetchFoundationBluePrintList() );
       dispatch( fetchStructureBluePrintList() );
     }
-  }, [authenticated, dispatch, id, blueprintType] );
+  }, [authenticated, dispatch, id, blueprintType, updateVersion] );
 
   useEffect( () => { fetchData(); }, [fetchData] );
 

@@ -14,6 +14,7 @@ const Todo: React.FC<Props> = ( { site } ) =>
 {
   const dispatch = useDispatch<AppDispatch>();
   const authenticated = useSelector( ( s: RootState ) => s.app.authenticated );
+  const updateVersion = useSelector( ( s: RootState ) => s.app.updateVersion );
   const { list, classList, loading, error } = useSelector( ( s: RootState ) => s.todo );
   const [hasDependencies, setHasDependencies] = useState( false );
   const [foundationClass, setFoundationClass] = useState( '' );
@@ -22,13 +23,13 @@ const Todo: React.FC<Props> = ( { site } ) =>
   {
     if ( !authenticated ) return;
     dispatch( fetchFoundationClassList() );
-  }, [authenticated, dispatch] );
+  }, [authenticated, dispatch, updateVersion] );
 
   const fetchData = useCallback( () =>
   {
     if ( !authenticated ) return;
     dispatch( fetchTodoList( { site: site ?? '', hasDependancies: hasDependencies, foundationClass: foundationClass || null } ) );
-  }, [authenticated, dispatch, site, hasDependencies, foundationClass] );
+  }, [authenticated, dispatch, site, hasDependencies, foundationClass, updateVersion] );
 
   useEffect( () => { fetchData(); }, [fetchData] );
 

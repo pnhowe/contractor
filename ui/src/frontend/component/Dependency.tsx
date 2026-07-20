@@ -16,6 +16,7 @@ const Dependency: React.FC<Props> = ( { id, site } ) =>
 {
   const dispatch = useDispatch<AppDispatch>();
   const authenticated = useSelector( ( s: RootState ) => s.app.authenticated );
+  const updateVersion = useSelector( ( s: RootState ) => s.app.updateVersion );
   const { list, detail, loading, error } = useSelector( ( s: RootState ) => s.dependencies );
 
   const fetchData = useCallback( () =>
@@ -23,7 +24,7 @@ const Dependency: React.FC<Props> = ( { id, site } ) =>
     if ( !authenticated ) return;
     if ( id !== undefined ) dispatch( fetchDependency( id ) );
     else dispatch( fetchDependencyList( site ?? '' ) );
-  }, [authenticated, dispatch, id, site] );
+  }, [authenticated, dispatch, id, site, updateVersion] );
 
   useEffect( () => { fetchData(); }, [fetchData] );
 

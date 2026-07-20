@@ -43,6 +43,7 @@ const Job: React.FC<Props> = ( { id, jobType, site } ) =>
 {
   const dispatch = useDispatch<AppDispatch>();
   const authenticated = useSelector( ( s: RootState ) => s.app.authenticated );
+  const updateVersion = useSelector( ( s: RootState ) => s.app.updateVersion );
   const { listFoundation, listStructure, listDependency, detail, loading, error } = useSelector( ( s: RootState ) => s.jobs );
   const [snackMessage, setSnackMessage] = useState( '' );
   const [snackSeverity, setSnackSeverity] = useState<'success' | 'error'>( 'success' );
@@ -63,7 +64,7 @@ const Job: React.FC<Props> = ( { id, jobType, site } ) =>
       dispatch( fetchStructureJobList( site ?? '' ) );
       dispatch( fetchDependencyJobList( site ?? '' ) );
     }
-  }, [authenticated, dispatch, id, jobType, site] );
+  }, [authenticated, dispatch, id, jobType, site, updateVersion] );
 
   useEffect( () => { fetchData(); }, [fetchData] );
 

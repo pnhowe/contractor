@@ -17,6 +17,7 @@ const Site: React.FC<Props> = ( { id } ) =>
 {
   const dispatch = useDispatch<AppDispatch>();
   const authenticated = useSelector( ( s: RootState ) => s.app.authenticated );
+  const updateVersion = useSelector( ( s: RootState ) => s.app.updateVersion );
   const { list, detail, loading, error } = useSelector( ( s: RootState ) => s.sites );
 
   const fetchData = useCallback( () =>
@@ -24,7 +25,7 @@ const Site: React.FC<Props> = ( { id } ) =>
     if ( !authenticated ) return;
     if ( id !== undefined ) dispatch( fetchSite( id ) );
     else dispatch( fetchSiteList() );
-  }, [authenticated, dispatch, id] );
+  }, [authenticated, dispatch, id, updateVersion] );
 
   useEffect( () => { fetchData(); }, [fetchData] );
 
