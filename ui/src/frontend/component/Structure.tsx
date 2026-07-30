@@ -4,6 +4,7 @@ import ConfigDialog from './ConfigDialog';
 import ErrorPanel from './ErrorPanel';
 import { contractor } from '../store';
 import { fetchStructureList, fetchStructure } from '../store/structuresSlice';
+import { DEFAULT_PAGE_SIZE } from '../store/sliceFactory';
 import { Box, Chip, CircularProgress, Link, Table, TableBody, TableCell, TableHead, TablePagination, TableRow, Typography } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import type { RootState, AppDispatch } from '../store';
@@ -19,17 +20,18 @@ const Structure: React.FC<Props> = ( { id, site } ) =>
   const dispatch = useDispatch<AppDispatch>();
   const authenticated = useSelector( ( s: RootState ) => s.app.authenticated );
   const updateVersion = useSelector( ( s: RootState ) => s.app.updateVersion );
-  const { list, detail, loading, error } = useSelector( ( s: RootState ) => s.structures );
+  const { list, total, detail, loading, error } = useSelector( ( s: RootState ) => s.structures );
   const [page, setPage] = useState( 0 );
-  const [rowsPerPage, setRowsPerPage] = useState( 25 );
+  const [rowsPerPage, setRowsPerPage] = useState( DEFAULT_PAGE_SIZE );
 
   const fetchData = useCallback( () =>
   {
     if ( !authenticated ) return;
     if ( id !== undefined ) dispatch( fetchStructure( id ) );
-    else dispatch( fetchStructureList( site ?? '' ) );
-  }, [authenticated, dispatch, id, site, updateVersion] );
+    else dispatch( fetchStructureList( { site: site ?? '', position: page * rowsPerPage, count: rowsPerPage } ) );
+  }, [authenticated, dispatch, id, site, page, rowsPerPage, updateVersion] );
 
+  useEffect( () => { setPage( 0 ); }, [site] );
   useEffect( () => { fetchData(); }, [fetchData] );
 
   if ( loading ) return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}><CircularProgress /></Box>;
@@ -104,9 +106,6 @@ const Structure: React.FC<Props> = ( { id, site } ) =>
     );
   }
 
-  const rows = list || [];
-  const pageRows = rows.slice( page * rowsPerPage, page * rowsPerPage + rowsPerPage );
-
   return (
     <Box>
       <Table>
@@ -120,7 +119,7 @@ const Structure: React.FC<Props> = ( { id, site } ) =>
           </TableRow>
         </TableHead>
         <TableBody>
-          { pageRows.map( ( item ) => (
+          { ( list || [] ).map( ( item ) => (
             <TableRow key={ item.id }>
               <TableCell align="right"><Link component={ RouterLink } to={ '/structure/' + item.id }>{ item.id }</Link></TableCell>
               <TableCell>{ item.hostname }</TableCell>
@@ -133,10 +132,10 @@ const Structure: React.FC<Props> = ( { id, site } ) =>
       </Table>
       <TablePagination
         component="div"
-        count={ rows.length }
+        count={ total }
         page={ page }
         rowsPerPage={ rowsPerPage }
-        rowsPerPageOptions={ [10, 25, 50, 100] }
+        rowsPerPageOptions={ [25, 50, 100] }
         onPageChange={ ( _, p ) => setPage( p ) }
         onRowsPerPageChange={ ( e ) => { setRowsPerPage( parseInt( e.target.value, 10 ) ); setPage( 0 ); } }
       />

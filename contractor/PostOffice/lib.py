@@ -28,7 +28,7 @@ def registerEvent( target, job=None, name=None ):
     post.name = job.script_name
   elif name is not None:
     if name not in ( 'create', 'destroy' ):
-      raise PostOfficeException( 'INVALID_JOB_NAME', 'name must be "create" or "create"' )
+      raise PostOfficeException( 'INVALID_JOB_NAME', 'name must be "create" or "destroy"' )
 
     post.name = name
   else:

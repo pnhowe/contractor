@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import ErrorPanel from './ErrorPanel';
 import { contractor } from '../store';
 import { fetchFoundationJobList, fetchStructureJobList, fetchDependencyJobList, fetchJobDetail, pauseJob, resumeJob, resetJob, rollbackJob } from '../store/jobsSlice';
+import { DEFAULT_PAGE_SIZE } from '../store/sliceFactory';
 import JobStateDialog from './JobStateDialog';
 import { Box, Button, Chip, CircularProgress, Link, Snackbar, Alert, Table, TableBody, TableCell, TableHead, TablePagination, TableRow, Typography } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
@@ -44,14 +45,14 @@ const Job: React.FC<Props> = ( { id, jobType, site } ) =>
   const dispatch = useDispatch<AppDispatch>();
   const authenticated = useSelector( ( s: RootState ) => s.app.authenticated );
   const updateVersion = useSelector( ( s: RootState ) => s.app.updateVersion );
-  const { listFoundation, listStructure, listDependency, detail, loading, error } = useSelector( ( s: RootState ) => s.jobs );
+  const { listFoundation, totalFoundation, listStructure, totalStructure, listDependency, totalDependency, detail, loading, error } = useSelector( ( s: RootState ) => s.jobs );
   const [snackMessage, setSnackMessage] = useState( '' );
   const [snackSeverity, setSnackSeverity] = useState<'success' | 'error'>( 'success' );
   const [snackOpen, setSnackOpen] = useState( false );
   const [pageF, setPageF] = useState( 0 );
   const [pageS, setPageS] = useState( 0 );
   const [pageD, setPageD] = useState( 0 );
-  const [rowsPerPage, setRowsPerPage] = useState( 25 );
+  const [rowsPerPage, setRowsPerPage] = useState( DEFAULT_PAGE_SIZE );
   const actionGenRef = useRef( 0 );
 
   const fetchData = useCallback( () =>
@@ -60,12 +61,13 @@ const Job: React.FC<Props> = ( { id, jobType, site } ) =>
     if ( id !== undefined ) dispatch( fetchJobDetail( { id, jobType: jobType ?? '' } ) );
     else
     {
-      dispatch( fetchFoundationJobList( site ?? '' ) );
-      dispatch( fetchStructureJobList( site ?? '' ) );
-      dispatch( fetchDependencyJobList( site ?? '' ) );
+      dispatch( fetchFoundationJobList( { site: site ?? '', position: pageF * rowsPerPage, count: rowsPerPage } ) );
+      dispatch( fetchStructureJobList( { site: site ?? '', position: pageS * rowsPerPage, count: rowsPerPage } ) );
+      dispatch( fetchDependencyJobList( { site: site ?? '', position: pageD * rowsPerPage, count: rowsPerPage } ) );
     }
-  }, [authenticated, dispatch, id, jobType, site, updateVersion] );
+  }, [authenticated, dispatch, id, jobType, site, pageF, pageS, pageD, rowsPerPage, updateVersion] );
 
+  useEffect( () => { setPageF( 0 ); setPageS( 0 ); setPageD( 0 ); }, [site] );
   useEffect( () => { fetchData(); }, [fetchData] );
 
   const showSnack = ( message: string, severity: 'success' | 'error' ) =>
@@ -127,6 +129,7 @@ const Job: React.FC<Props> = ( { id, jobType, site } ) =>
                 }
                 <TableRow><TableCell variant="head">Script</TableCell><TableCell>{ detail.job.script_name }</TableCell></TableRow>
                 <TableRow><TableCell variant="head">Message</TableCell><TableCell>{ detail.job.message }</TableCell></TableRow>
+                <TableRow><TableCell variant="head">Note</TableCell><TableCell>{ detail.job.note }</TableCell></TableRow>
                 <TableRow><TableCell variant="head">State</TableCell><TableCell>{ detail.job.state }</TableCell></TableRow>
                 <TableRow><TableCell variant="head">Created</TableCell><TableCell>{ dateStr( detail.job.created ) }</TableCell></TableRow>
                 <TableRow><TableCell variant="head">Updated</TableCell><TableCell>{ dateStr( detail.job.updated ) }</TableCell></TableRow>
@@ -138,10 +141,6 @@ const Job: React.FC<Props> = ( { id, jobType, site } ) =>
       </Box>
     );
   }
-
-  const rowsF = listFoundation || [];
-  const rowsS = listStructure || [];
-  const rowsD = listDependency || [];
 
   return (
     <Box>
@@ -158,19 +157,19 @@ const Job: React.FC<Props> = ( { id, jobType, site } ) =>
           </TableRow>
         </TableHead>
         <TableBody>
-          { rowsF.slice( pageF * rowsPerPage, pageF * rowsPerPage + rowsPerPage ).map( ( item ) => (
+          { ( listFoundation || [] ).map( ( item ) => (
             <TableRow key={ item.id }>
               <TableCell align="right"><Link component={ RouterLink } to={ '/job/f/' + item.id }>{ item.id }</Link></TableCell>
               <TableCell>{ item.script }</TableCell>
               <TableCell><Link component={ RouterLink } to={ '/foundation/' + item.foundation }>{ item.foundation }</Link></TableCell>
-              <TableCell>{ item.message }<br/>{ item.status.map( ( s: any, idx: number ) => renderStatus( s, idx ) ) }</TableCell>
+              <TableCell>{ item.message }{ item.note && <><br/>{ item.note }</> }<br/>{ item.status.map( ( s: any, idx: number ) => renderStatus( s, idx ) ) }</TableCell>
               <TableCell><Chip size="small" label={ item.state } color={ stateColor( item.state ) } /></TableCell>
               <TableCell><strong>Created:</strong>&nbsp;{ item.created }<br/><strong>Updated:</strong>&nbsp;{ item.updated }</TableCell>
             </TableRow>
           ) ) }
         </TableBody>
       </Table>
-      <TablePagination component="div" count={ rowsF.length } page={ pageF } rowsPerPage={ rowsPerPage } rowsPerPageOptions={ [10, 25, 50, 100] } onPageChange={ ( _, p ) => setPageF( p ) } onRowsPerPageChange={ ( e ) => { setRowsPerPage( parseInt( e.target.value, 10 ) ); setPageF( 0 ); setPageS( 0 ); setPageD( 0 ); } } />
+      <TablePagination component="div" count={ totalFoundation } page={ pageF } rowsPerPage={ rowsPerPage } rowsPerPageOptions={ [25, 50, 100] } onPageChange={ ( _, p ) => setPageF( p ) } onRowsPerPageChange={ ( e ) => { setRowsPerPage( parseInt( e.target.value, 10 ) ); setPageF( 0 ); setPageS( 0 ); setPageD( 0 ); } } />
 
       <Typography variant="h5" gutterBottom sx={{ mt: 2 }}>Structure Jobs</Typography>
       <Table>
@@ -185,19 +184,19 @@ const Job: React.FC<Props> = ( { id, jobType, site } ) =>
           </TableRow>
         </TableHead>
         <TableBody>
-          { rowsS.slice( pageS * rowsPerPage, pageS * rowsPerPage + rowsPerPage ).map( ( item ) => (
+          { ( listStructure || [] ).map( ( item ) => (
             <TableRow key={ item.id }>
               <TableCell align="right"><Link component={ RouterLink } to={ '/job/s/' + item.id }>{ item.id }</Link></TableCell>
               <TableCell>{ item.script }</TableCell>
               <TableCell><Link component={ RouterLink } to={ '/structure/' + item.structure }>{ item.structure }</Link></TableCell>
-              <TableCell>{ item.message }<br/>{ item.status.map( ( s: any, idx: number ) => renderStatus( s, idx ) ) }</TableCell>
+              <TableCell>{ item.message }{ item.note && <><br/>{ item.note }</> }<br/>{ item.status.map( ( s: any, idx: number ) => renderStatus( s, idx ) ) }</TableCell>
               <TableCell><Chip size="small" label={ item.state } color={ stateColor( item.state ) } /></TableCell>
               <TableCell><strong>Created:</strong>&nbsp;{ item.created }<br/><strong>Updated:</strong>&nbsp;{ item.updated }</TableCell>
             </TableRow>
           ) ) }
         </TableBody>
       </Table>
-      <TablePagination component="div" count={ rowsS.length } page={ pageS } rowsPerPage={ rowsPerPage } rowsPerPageOptions={ [10, 25, 50, 100] } onPageChange={ ( _, p ) => setPageS( p ) } onRowsPerPageChange={ ( e ) => { setRowsPerPage( parseInt( e.target.value, 10 ) ); setPageF( 0 ); setPageS( 0 ); setPageD( 0 ); } } />
+      <TablePagination component="div" count={ totalStructure } page={ pageS } rowsPerPage={ rowsPerPage } rowsPerPageOptions={ [25, 50, 100] } onPageChange={ ( _, p ) => setPageS( p ) } onRowsPerPageChange={ ( e ) => { setRowsPerPage( parseInt( e.target.value, 10 ) ); setPageF( 0 ); setPageS( 0 ); setPageD( 0 ); } } />
 
       <Typography variant="h5" gutterBottom sx={{ mt: 2 }}>Dependency Jobs</Typography>
       <Table>
@@ -212,19 +211,19 @@ const Job: React.FC<Props> = ( { id, jobType, site } ) =>
           </TableRow>
         </TableHead>
         <TableBody>
-          { rowsD.slice( pageD * rowsPerPage, pageD * rowsPerPage + rowsPerPage ).map( ( item ) => (
+          { ( listDependency || [] ).map( ( item ) => (
             <TableRow key={ item.id }>
               <TableCell align="right"><Link component={ RouterLink } to={ '/job/d/' + item.id }>{ item.id }</Link></TableCell>
               <TableCell>{ item.script }</TableCell>
               <TableCell>{ item.dependency }</TableCell>
-              <TableCell>{ item.message }<br/>{ item.status.map( ( s: any, idx: number ) => renderStatus( s, idx ) ) }</TableCell>
+              <TableCell>{ item.message }{ item.note && <><br/>{ item.note }</> }<br/>{ item.status.map( ( s: any, idx: number ) => renderStatus( s, idx ) ) }</TableCell>
               <TableCell><Chip size="small" label={ item.state } color={ stateColor( item.state ) } /></TableCell>
               <TableCell><strong>Created:</strong>&nbsp;{ item.created }<br/><strong>Updated:</strong>&nbsp;{ item.updated }</TableCell>
             </TableRow>
           ) ) }
         </TableBody>
       </Table>
-      <TablePagination component="div" count={ rowsD.length } page={ pageD } rowsPerPage={ rowsPerPage } rowsPerPageOptions={ [10, 25, 50, 100] } onPageChange={ ( _, p ) => setPageD( p ) } onRowsPerPageChange={ ( e ) => { setRowsPerPage( parseInt( e.target.value, 10 ) ); setPageF( 0 ); setPageS( 0 ); setPageD( 0 ); } } />
+      <TablePagination component="div" count={ totalDependency } page={ pageD } rowsPerPage={ rowsPerPage } rowsPerPageOptions={ [25, 50, 100] } onPageChange={ ( _, p ) => setPageD( p ) } onRowsPerPageChange={ ( e ) => { setRowsPerPage( parseInt( e.target.value, 10 ) ); setPageF( 0 ); setPageS( 0 ); setPageD( 0 ); } } />
 
       { snackbar }
     </Box>

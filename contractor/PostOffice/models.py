@@ -79,7 +79,7 @@ class Box( models.Model ):
   created = models.DateTimeField( editable=False, auto_now_add=True )
 
   def extend( self, additional_hours ):
-    self.expires += timedelta( hour=additional_hours )
+    self.expires += timedelta( hours=additional_hours )
     self.full_clean()
     self.save()
 
@@ -96,10 +96,10 @@ class Box( models.Model ):
     if self.type not in [ i[0] for i in Box.BOX_TYPE ]:
       errors[ 'type' ] = 'Invalid'
 
-    if self.expires is not None and not self.expires > datetime.now( timezone.utc ) + timedelta( hours=MAX_BOX_LIFE ):
+    if self.expires is not None and self.expires > datetime.now( timezone.utc ) + timedelta( hours=MAX_BOX_LIFE ):
       errors[ 'expires' ] = 'more than "{0}" hourse in the future'.format( MAX_BOX_LIFE )
 
-    if not self.one_shot and self.exires is None:
+    if not self.one_shot and self.expires is None:
       errors[ 'expires' ] = 'required when not one_shot'
 
     if errors:

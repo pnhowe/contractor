@@ -13,12 +13,14 @@ import re
 
 def validateTemplate( id_map, validation_template ):  # return message as a string if something does not match
   for name, pattern in validation_template.items():
+    value = id_map
     try:
-      value = id_map[ name.split( '.' ) ]
-    except KeyError:
+      for part in name.split( '.' ):
+        value = value[ part ]
+    except ( KeyError, TypeError ):
       return 'Item "{0}" not found'.format( name )
 
     if not re.match( pattern, value ):
-      return 'Item "{0}" does not match "{1}"'.format( name, id_map[ name ] )
+      return 'Item "{0}" does not match "{1}"'.format( name, value )
 
   return None

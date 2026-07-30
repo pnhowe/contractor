@@ -1,8 +1,9 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import ErrorPanel from './ErrorPanel';
 import { fetchDirectoryZoneList, fetchDirectoryZone, GLOBAL_ZONE_ID } from '../store/directorySlice';
-import { Box, CircularProgress, Link, Table, TableBody, TableCell, TableHead, TableRow, Typography } from '@mui/material';
+import { DEFAULT_PAGE_SIZE } from '../store/sliceFactory';
+import { Box, CircularProgress, Link, Table, TableBody, TableCell, TableHead, TablePagination, TableRow, Typography } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import type { RootState, AppDispatch } from '../store';
 import { dateStr } from '../lib/utils';
@@ -16,14 +17,16 @@ const Directory: React.FC<Props> = ( { id } ) =>
   const dispatch = useDispatch<AppDispatch>();
   const authenticated = useSelector( ( s: RootState ) => s.app.authenticated );
   const updateVersion = useSelector( ( s: RootState ) => s.app.updateVersion );
-  const { list, detail, loading, error } = useSelector( ( s: RootState ) => s.directory );
+  const { list, total, detail, loading, error } = useSelector( ( s: RootState ) => s.directory );
+  const [page, setPage] = useState( 0 );
+  const [rowsPerPage, setRowsPerPage] = useState( DEFAULT_PAGE_SIZE );
 
   const fetchData = useCallback( () =>
   {
     if ( !authenticated ) return;
     if ( id !== undefined ) dispatch( fetchDirectoryZone( id ) );
-    else dispatch( fetchDirectoryZoneList() );
-  }, [authenticated, dispatch, id, updateVersion] );
+    else dispatch( fetchDirectoryZoneList( { position: page * rowsPerPage, count: rowsPerPage } ) );
+  }, [authenticated, dispatch, id, page, rowsPerPage, updateVersion] );
 
   useEffect( () => { fetchData(); }, [fetchData] );
 
@@ -92,32 +95,43 @@ const Directory: React.FC<Props> = ( { id } ) =>
   }
 
   return (
-    <Table>
-      <TableHead>
-        <TableRow>
-          <TableCell>Name</TableCell>
-          <TableCell>FQDN</TableCell>
-          <TableCell>Parent</TableCell>
-          <TableCell>Created</TableCell>
-          <TableCell>Updated</TableCell>
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        <TableRow>
-          <TableCell><Link component={ RouterLink } to={ '/directoryzone/' + GLOBAL_ZONE_ID }><em>Global</em></Link></TableCell>
-          <TableCell colSpan={ 4 } />
-        </TableRow>
-        { ( list || [] ).map( ( item ) => (
-          <TableRow key={ item.id }>
-            <TableCell><Link component={ RouterLink } to={ '/directoryzone/' + item.id }>{ item.name }</Link></TableCell>
-            <TableCell>{ item.fqdn }</TableCell>
-            <TableCell>{ item.parent }</TableCell>
-            <TableCell>{ item.created }</TableCell>
-            <TableCell>{ item.updated }</TableCell>
+    <Box>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell>Name</TableCell>
+            <TableCell>FQDN</TableCell>
+            <TableCell>Parent</TableCell>
+            <TableCell>Created</TableCell>
+            <TableCell>Updated</TableCell>
           </TableRow>
-        ) ) }
-      </TableBody>
-    </Table>
+        </TableHead>
+        <TableBody>
+          <TableRow>
+            <TableCell><Link component={ RouterLink } to={ '/directoryzone/' + GLOBAL_ZONE_ID }><em>Global</em></Link></TableCell>
+            <TableCell colSpan={ 4 } />
+          </TableRow>
+          { ( list || [] ).map( ( item ) => (
+            <TableRow key={ item.id }>
+              <TableCell><Link component={ RouterLink } to={ '/directoryzone/' + item.id }>{ item.name }</Link></TableCell>
+              <TableCell>{ item.fqdn }</TableCell>
+              <TableCell>{ item.parent }</TableCell>
+              <TableCell>{ item.created }</TableCell>
+              <TableCell>{ item.updated }</TableCell>
+            </TableRow>
+          ) ) }
+        </TableBody>
+      </Table>
+      <TablePagination
+        component="div"
+        count={ total }
+        page={ page }
+        rowsPerPage={ rowsPerPage }
+        rowsPerPageOptions={ [25, 50, 100] }
+        onPageChange={ ( _, p ) => setPage( p ) }
+        onRowsPerPageChange={ ( e ) => { setRowsPerPage( parseInt( e.target.value, 10 ) ); setPage( 0 ); } }
+      />
+    </Box>
   );
 };
 

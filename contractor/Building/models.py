@@ -788,7 +788,7 @@ class ComplexStructure( models.Model ):
   @cinp.check_auth()
   @staticmethod
   def checkAuth( user, verb, id_list, action=None ):
-    return cinp.basic_auth_check( user, verb, action, ComplexStructure, { 'getConfig', 'Building.view_complexstructure' } )
+    return cinp.basic_auth_check( user, verb, action, ComplexStructure, { 'getConfig': 'Building.view_complexstructure' } )
 
   # TODO: need to make sure a Structure is in only one complex
   def clean( self, *args, **kwargs ):

@@ -3,7 +3,7 @@ import pickle
 import time
 
 from contractor.tscript.parser import parse
-from contractor.tscript.runner import Runner, ExecutionError, UnrecoverableError, ParameterError, NotDefinedError, Timeout, Pause
+from contractor.tscript.runner import Runner, ExecutionError, UnrecoverableError, ParameterError, NotDefinedError, ScriptError, Timeout, Pause
 
 # TODO: test the assignment deepcopy, ie: a = {}, b = a  make sure changes to b are not reflected in a
 
@@ -717,6 +717,24 @@ def test_delay():
   assert runner.run() == 'Waiting for 7197 more seconds'
 
 
+def test_delay_isolation():  # each Runner's delay() call must not share state with another Runner's
+  runner1 = Runner( parse( 'delay( seconds=5 )' ) )
+  runner1.run()
+
+  runner2 = Runner( parse( 'delay( seconds=500 )' ) )
+  runner2.run()
+
+  assert runner1.run() == 'Waiting for 4 more seconds'
+
+
+def test_delay_sequential_same_runner():  # multiple delay() calls at different points in one script must each get their own timer
+  runner = Runner( parse( 'delay( seconds=5 )\ndelay( seconds=100 )' ) )
+  assert runner.run() == 'Waiting for 4 more seconds'
+  time.sleep( 5 )
+  assert runner.run() == 'Waiting for 99 more seconds'
+  assert not runner.done
+
+
 def test_message():
   runner = Runner( parse( 'message( msg="Hello World" )' ) )
   assert runner.run() == 'Hello World'
@@ -1004,6 +1022,63 @@ def test_while():
   assert runner.status[0][0] == 100.0
   assert runner.done
   assert runner.variable_map == { 'cnt': 10 }
+
+
+def test_break_continue():
+  runner = Runner( parse( 'cnt = 0\nwhile ( cnt < 10 ) do begin()\ncnt = ( cnt + 1 )\nif ( cnt == 5 ) then break\nend' ) )
+  runner.run( 500 )
+  assert runner.done
+  assert runner.variable_map == { 'cnt': 5 }
+
+  runner = Runner( parse( 'cnt = 0\nsum = 0\nwhile ( cnt < 5 ) do begin()\ncnt = ( cnt + 1 )\nif ( cnt == 3 ) then continue\nsum = ( sum + cnt )\nend' ) )
+  runner.run( 500 )
+  assert runner.done
+  assert runner.variable_map == { 'cnt': 5, 'sum': 12 }  # 1 + 2 + 4 + 5, 3 was skipped by continue
+
+  runner = Runner( parse( 'pass' ) )
+  runner.run()
+  assert runner.done
+
+  with pytest.raises( ScriptError, match='outside of a while loop' ):
+    runner = Runner( parse( 'break' ) )
+    runner.run()
+
+  with pytest.raises( ScriptError, match='outside of a while loop' ):
+    runner = Runner( parse( 'continue' ) )
+    runner.run()
+
+  # break/continue outside of any while loop must be rejected even when nested inside other constructs
+  with pytest.raises( ScriptError, match='outside of a while loop' ):
+    runner = Runner( parse( 'if True then break' ) )
+    runner.run()
+
+  with pytest.raises( ScriptError, match='outside of a while loop' ):
+    runner = Runner( parse( 'if True then continue' ) )
+    runner.run()
+
+
+def test_break_continue_nested():  # a break/continue must only affect the nearest enclosing while loop
+  script = ( 'outer = 0\n'
+             'inner = 0\n'
+             'while ( outer < 3 ) do begin()\n'
+             'outer = ( outer + 1 )\n'
+             'inner = 0\n'
+             'while ( inner < 10 ) do begin()\n'
+             'inner = ( inner + 1 )\n'
+             'if ( inner == 2 ) then break\n'
+             'end\n'
+             'end' )
+  runner = Runner( parse( script ) )
+  runner.run( 1000 )
+  assert runner.done
+  assert runner.variable_map == { 'outer': 3, 'inner': 2 }
+
+
+def test_reserved_word_prefix_variables():  # identifiers that merely start with "break"/"continue"/"pass" must still work as ordinary variables
+  runner = Runner( parse( 'breakfast = 5\ncontinued = breakfast\npassenger = continued' ) )
+  runner.run()
+  assert runner.done
+  assert runner.variable_map == { 'breakfast': 5, 'continued': 5, 'passenger': 5 }
 
 
 def test_ifelse():

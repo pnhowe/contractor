@@ -291,10 +291,7 @@ class AddressBlock( models.Model ):
       ABobjects = AddressBlock.objects.filter( ~Q( pk=self.pk ), site=self.site )
     else:
       ABobjects = AddressBlock.objects.filter( site=self.site )
-    block_count = ABobjects.filter( subnet__gte=self.subnet, _max_address__lte=self.subnet ).count()
-    block_count += ABobjects.filter( subnet__gte=self._max_address, _max_address__lte=self._max_address ).count()
-    block_count += ABobjects.filter( _max_address__gte=self.subnet, _max_address__lte=self._max_address ).count()
-    block_count += ABobjects.filter( subnet__gte=self.subnet, subnet__lte=self._max_address ).count()
+    block_count = ABobjects.filter( subnet__lte=self._max_address, _max_address__gte=self.subnet ).count()
     if block_count > 0:
       errors[ 'subnet' ] = 'This subnet/prefix overlaps with an existing Address Block in the same site'
 
@@ -854,7 +851,7 @@ class BaseAddress( models.Model ):
       if self.offset is None or self.offset < min_offset or self.offset > max_offset:
         errors[ 'offset' ] = 'Must be greater than {0} and less than {1}'.format( min_offset, max_offset )
 
-      if 'offest' not in errors and self.offset == self.address_block.gateway_offset:
+      if 'offset' not in errors and self.offset == self.address_block.gateway_offset:
         errors[ 'offset' ] = 'Conflicts with Gateway'
 
     if errors:

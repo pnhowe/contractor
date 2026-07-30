@@ -1,12 +1,13 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import ConfigDialog from './ConfigDialog';
 import ScriptDialog from './ScriptDialog';
 import ErrorPanel from './ErrorPanel';
 import { contractor } from '../store';
 import { fetchFoundationBluePrintList, fetchStructureBluePrintList, fetchFoundationBluePrint, fetchStructureBluePrint } from '../store/blueprintsSlice';
+import { DEFAULT_PAGE_SIZE } from '../store/sliceFactory';
 import type { BluePrint_FoundationBluePrint } from '../lib/Contractor';
-import { Box, CircularProgress, Link, Table, TableBody, TableCell, TableHead, TableRow, Typography } from '@mui/material';
+import { Box, CircularProgress, Link, Table, TableBody, TableCell, TableHead, TablePagination, TableRow, Typography } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import type { RootState, AppDispatch } from '../store';
 import { dateStr, configValues } from '../lib/utils';
@@ -21,7 +22,11 @@ const BluePrint: React.FC<Props> = ( { id, blueprintType } ) =>
   const dispatch = useDispatch<AppDispatch>();
   const authenticated = useSelector( ( s: RootState ) => s.app.authenticated );
   const updateVersion = useSelector( ( s: RootState ) => s.app.updateVersion );
-  const { listF, listS, detail, loading, error } = useSelector( ( s: RootState ) => s.blueprints );
+  const { listF, totalF, listS, totalS, detail, loading, error } = useSelector( ( s: RootState ) => s.blueprints );
+  const [pageF, setPageF] = useState( 0 );
+  const [rowsPerPageF, setRowsPerPageF] = useState( DEFAULT_PAGE_SIZE );
+  const [pageS, setPageS] = useState( 0 );
+  const [rowsPerPageS, setRowsPerPageS] = useState( DEFAULT_PAGE_SIZE );
 
   const fetchData = useCallback( () =>
   {
@@ -33,10 +38,10 @@ const BluePrint: React.FC<Props> = ( { id, blueprintType } ) =>
     }
     else
     {
-      dispatch( fetchFoundationBluePrintList() );
-      dispatch( fetchStructureBluePrintList() );
+      dispatch( fetchFoundationBluePrintList( { position: pageF * rowsPerPageF, count: rowsPerPageF } ) );
+      dispatch( fetchStructureBluePrintList( { position: pageS * rowsPerPageS, count: rowsPerPageS } ) );
     }
-  }, [authenticated, dispatch, id, blueprintType, updateVersion] );
+  }, [authenticated, dispatch, id, blueprintType, pageF, rowsPerPageF, pageS, rowsPerPageS, updateVersion] );
 
   useEffect( () => { fetchData(); }, [fetchData] );
 
@@ -132,6 +137,15 @@ const BluePrint: React.FC<Props> = ( { id, blueprintType } ) =>
           ) ) }
         </TableBody>
       </Table>
+      <TablePagination
+        component="div"
+        count={ totalF }
+        page={ pageF }
+        rowsPerPage={ rowsPerPageF }
+        rowsPerPageOptions={ [25, 50, 100] }
+        onPageChange={ ( _, p ) => setPageF( p ) }
+        onRowsPerPageChange={ ( e ) => { setRowsPerPageF( parseInt( e.target.value, 10 ) ); setPageF( 0 ); } }
+      />
       <Typography variant="h5" gutterBottom sx={{ mt: 2 }}>Structure BluePrints</Typography>
       <Table>
         <TableHead>
@@ -153,6 +167,15 @@ const BluePrint: React.FC<Props> = ( { id, blueprintType } ) =>
           ) ) }
         </TableBody>
       </Table>
+      <TablePagination
+        component="div"
+        count={ totalS }
+        page={ pageS }
+        rowsPerPage={ rowsPerPageS }
+        rowsPerPageOptions={ [25, 50, 100] }
+        onPageChange={ ( _, p ) => setPageS( p ) }
+        onRowsPerPageChange={ ( e ) => { setRowsPerPageS( parseInt( e.target.value, 10 ) ); setPageS( 0 ); } }
+      />
     </Box>
   );
 };

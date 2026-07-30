@@ -1,8 +1,9 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import ErrorPanel from './ErrorPanel';
 import { fetchComplexList, fetchComplex } from '../store/complexesSlice';
-import { Box, CircularProgress, Link, Table, TableBody, TableCell, TableHead, TableRow, Typography } from '@mui/material';
+import { DEFAULT_PAGE_SIZE } from '../store/sliceFactory';
+import { Box, CircularProgress, Link, Table, TableBody, TableCell, TableHead, TablePagination, TableRow, Typography } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import type { RootState, AppDispatch } from '../store';
 import { dateStr } from '../lib/utils';
@@ -17,15 +18,18 @@ const Complex: React.FC<Props> = ( { id, site } ) =>
   const dispatch = useDispatch<AppDispatch>();
   const authenticated = useSelector( ( s: RootState ) => s.app.authenticated );
   const updateVersion = useSelector( ( s: RootState ) => s.app.updateVersion );
-  const { list, detail, loading, error } = useSelector( ( s: RootState ) => s.complexes );
+  const { list, total, detail, loading, error } = useSelector( ( s: RootState ) => s.complexes );
+  const [page, setPage] = useState( 0 );
+  const [rowsPerPage, setRowsPerPage] = useState( DEFAULT_PAGE_SIZE );
 
   const fetchData = useCallback( () =>
   {
     if ( !authenticated ) return;
     if ( id !== undefined ) dispatch( fetchComplex( id ) );
-    else dispatch( fetchComplexList( site ?? '' ) );
-  }, [authenticated, dispatch, id, site, updateVersion] );
+    else dispatch( fetchComplexList( { site: site ?? '', position: page * rowsPerPage, count: rowsPerPage } ) );
+  }, [authenticated, dispatch, id, site, page, rowsPerPage, updateVersion] );
 
+  useEffect( () => { setPage( 0 ); }, [site] );
   useEffect( () => { fetchData(); }, [fetchData] );
 
   if ( loading ) return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}><CircularProgress /></Box>;
@@ -59,30 +63,41 @@ const Complex: React.FC<Props> = ( { id, site } ) =>
   }
 
   return (
-    <Table>
-      <TableHead>
-        <TableRow>
-          <TableCell align="right">Id</TableCell>
-          <TableCell>Description</TableCell>
-          <TableCell>Type</TableCell>
-          <TableCell>State</TableCell>
-          <TableCell>Created</TableCell>
-          <TableCell>Updated</TableCell>
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        { ( list || [] ).map( ( item ) => (
-          <TableRow key={ item.id }>
-            <TableCell align="right"><Link component={ RouterLink } to={ '/complex/' + item.id }>{ item.id }</Link></TableCell>
-            <TableCell>{ item.description }</TableCell>
-            <TableCell>{ item.type }</TableCell>
-            <TableCell>{ item.state }</TableCell>
-            <TableCell>{ item.created }</TableCell>
-            <TableCell>{ item.updated }</TableCell>
+    <Box>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell align="right">Id</TableCell>
+            <TableCell>Description</TableCell>
+            <TableCell>Type</TableCell>
+            <TableCell>State</TableCell>
+            <TableCell>Created</TableCell>
+            <TableCell>Updated</TableCell>
           </TableRow>
-        ) ) }
-      </TableBody>
-    </Table>
+        </TableHead>
+        <TableBody>
+          { ( list || [] ).map( ( item ) => (
+            <TableRow key={ item.id }>
+              <TableCell align="right"><Link component={ RouterLink } to={ '/complex/' + item.id }>{ item.id }</Link></TableCell>
+              <TableCell>{ item.description }</TableCell>
+              <TableCell>{ item.type }</TableCell>
+              <TableCell>{ item.state }</TableCell>
+              <TableCell>{ item.created }</TableCell>
+              <TableCell>{ item.updated }</TableCell>
+            </TableRow>
+          ) ) }
+        </TableBody>
+      </Table>
+      <TablePagination
+        component="div"
+        count={ total }
+        page={ page }
+        rowsPerPage={ rowsPerPage }
+        rowsPerPageOptions={ [25, 50, 100] }
+        onPageChange={ ( _, p ) => setPage( p ) }
+        onRowsPerPageChange={ ( e ) => { setRowsPerPage( parseInt( e.target.value, 10 ) ); setPage( 0 ); } }
+      />
+    </Box>
   );
 };
 

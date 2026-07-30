@@ -20,6 +20,7 @@ class Migration(migrations.Migration):
                 ('state', models.CharField(max_length=10, choices=[('queued', 'queued'), ('waiting', 'waiting'), ('done', 'done'), ('paused', 'paused'), ('error', 'error'), ('aborted', 'aborted')])),
                 ('status', contractor.fields.JSONField(default=[], blank=True)),
                 ('message', models.CharField(default='', max_length=1024, blank=True)),
+                ('note', models.CharField(default='', max_length=1024, blank=True)),
                 ('script_runner', models.BinaryField()),
                 ('script_name', models.CharField(default=False, max_length=40, editable=False)),
                 ('updated', models.DateTimeField(auto_now=True)),

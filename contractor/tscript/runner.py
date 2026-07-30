@@ -65,6 +65,15 @@ class Goto( Exception ):
     self.line_no = line_no
 
 
+# used internally to implement "break"/"continue", caught by the nearest enclosing while loop
+class Break( Exception ):
+  pass
+
+
+class Continue( Exception ):
+  pass
+
+
 class NoRollback( Exception ):
   pass
 
@@ -284,7 +293,7 @@ builtin_function_map = {
                           'pause': lambda msg: Pause( msg ),
                           'error': lambda msg: ExecutionError( msg ),
                           'fatal_error': lambda msg: UnrecoverableError( msg ),
-                          'delay': Delay(),
+                          'delay': Delay,
                           'message': lambda msg: Interrupt( msg )
                         }
 
@@ -556,6 +565,10 @@ class Runner( object ):
 
       except Interrupt as e:
         return str( e )
+
+      except ( Break, Continue ) as e:  # used outside of a while loop, there is nothing to break/continue out of
+        self.state = 'ABORTED'
+        raise ScriptError( '"{0}" used outside of a while loop'.format( 'break' if isinstance( e, Break ) else 'continue' ), self.cur_line )
 
       except ( Pause, ExecutionError ) as e:
         raise e
@@ -905,6 +918,9 @@ class Runner( object ):
             except KeyError:
               raise NotDefinedError( op_data[ 'name' ], self.cur_line )
 
+            if isinstance( handler, type ):  # needs to be instantiated fresh, ie: stateful builtins like Delay
+              handler = handler()
+
             module = '<builtin>'
 
           else:  # external function
@@ -999,7 +1015,14 @@ class Runner( object ):
           self.state = self.state[ :( state_index + 1 ) ]
 
         if self.state[ state_index ][1][ 'doing' ] == 'expression':
-          self._evaluate( op_data[ 'expression' ], state_index + 1 )
+          try:
+            self._evaluate( op_data[ 'expression' ], state_index + 1 )
+          except Continue:
+            pass
+          except Break:
+            self.state = self.state[ :( state_index + 1 ) ]
+            break
+
           self.state[ state_index ][1][ 'doing' ] = 'condition'
           self.state = self.state[ :( state_index + 1 ) ]
 
@@ -1052,6 +1075,16 @@ class Runner( object ):
 
     elif op_type == Types.GOTO:
       raise Goto( op_data, self.cur_line )
+
+    elif op_type == Types.OTHER:
+      if op_data == 'break':
+        raise Break()
+      elif op_data == 'continue':
+        raise Continue()
+      elif op_data == 'pass':
+        pass
+      else:
+        raise ScriptError( 'Unknown "other" operation "{0}"'.format( op_data ), self.cur_line )
 
     else:
       raise ScriptError( 'Unimplemented "{0}"'.format( op_type ), self.cur_line )
