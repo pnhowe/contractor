@@ -82,6 +82,7 @@ const Structure: React.FC<Props> = ( { id, site } ) =>
                   <TableCell>Offset</TableCell>
                   <TableCell>Ip Address</TableCell>
                   <TableCell>Interface</TableCell>
+                  <TableCell>Primary</TableCell>
                   <TableCell>Address Block</TableCell>
                   <TableCell>Created</TableCell>
                   <TableCell>Updated</TableCell>
@@ -93,6 +94,7 @@ const Structure: React.FC<Props> = ( { id, site } ) =>
                     <TableCell>{ addr.offset }</TableCell>
                     <TableCell>{ addr.ip_address }</TableCell>
                     <TableCell>{ addr.interface_name }</TableCell>
+                    <TableCell>{ addr.is_primary ? 'Yes' : 'No' }</TableCell>
                     <TableCell><Link component={ RouterLink } to={ '/addressblock/' + addr.address_block?.toString() }>{ addr.address_block?.toString() }</Link></TableCell>
                     <TableCell>{ dateStr( addr.created ) }</TableCell>
                     <TableCell>{ dateStr( addr.updated ) }</TableCell>

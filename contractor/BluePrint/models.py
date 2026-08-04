@@ -7,7 +7,7 @@ from cinp.orm_django import DjangoCInP as CInP
 from contractor.fields import MapField, StringListField, name_regex, config_name_regex
 from contractor.tscript import parser
 from contractor.lib.config import getConfig
-from contractor.BluePrint.lib import validateTemplate
+from contractor.BluePrint.lib import validateTemplate, checkTemplate, TemplateError
 from contractor.Records.lib import post_save_callback, post_delete_callback
 
 
@@ -129,7 +129,10 @@ class FoundationBluePrint( BluePrint ):
     if template is None:
       return None
 
-    return validateTemplate( id_map, template )
+    try:
+      return validateTemplate( id_map, template )
+    except TemplateError as e:  # the stored template itself is malformed (ex: saved without going through full_clean, or predates a validation rule) -- surface it the same way an id_map mismatch is surfaced, instead of raising out of a bootstrap request
+      return [ 'BluePrint "{0}" has a misconfigured validation_template: {1}'.format( self.name, e ) ]
 
   @cinp.action( 'Map' )
   def getConfig( self ):
@@ -145,6 +148,11 @@ class FoundationBluePrint( BluePrint ):
     errors = {}
     if not isinstance( self.validation_template, dict ):
       errors[ 'validation_template' ] = 'template must be a dict'
+    elif self.validation_template:
+      try:
+        checkTemplate( self.validation_template )
+      except TemplateError as e:
+        errors[ 'validation_template' ] = str( e )
 
     if errors:
       raise ValidationError( errors )

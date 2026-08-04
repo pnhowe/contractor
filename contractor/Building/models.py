@@ -253,21 +253,47 @@ class Foundation( models.Model ):
   def dependencyId( self ):
     return 'f-{0}'.format( self.pk )
 
+  def _idMapInterfaceList( self, id_map ):  # returns the (validated, not yet saved) interfaces this id_map updates, or raises ValueError with a message meant for whoever sent the id_map
+    network = id_map.get( 'network', {} )
+    if not isinstance( network, dict ):
+      raise ValueError( 'id_map "network" must be a map' )
+
+    result = []
+    for iface in RealNetworkInterface.objects.filter( foundation=self ):
+      entry = network.get( iface.physical_location )
+      if entry is None:
+        continue
+
+      if not isinstance( entry, dict ) or not isinstance( entry.get( 'mac' ), str ):
+        raise ValueError( 'id_map network entry "{0}" must be a map with a "mac" string'.format( iface.physical_location ) )
+
+      iface.mac = entry[ 'mac' ]
+      try:
+        iface.full_clean()
+      except ValidationError as e:
+        raise ValueError( 'id_map network entry "{0}" is invalid: {1}'.format( iface.physical_location, '; '.join( e.messages ) ) )
+
+      result.append( iface )
+
+    return result
+
   @cinp.action( return_type={ 'type': 'String' }, parameter_type_list=[ 'Map' ] )
   def setIdMap( self, id_map ):
-    error = self.blueprint.validateIdMap( id_map )
-    if error is not None:
-      return error
+    error_list = self.blueprint.validateIdMap( id_map )
+    if error_list is not None:
+      return '; '.join( error_list )
+
+    try:  # everything the id_map touches is checked before anything is written, so a malformed id_map is a returned error rather than a stored id_map plus a mid-update exception
+      iface_list = self._idMapInterfaceList( id_map )
+    except ValueError as e:
+      return str( e )
 
     self.id_map = id_map
     self.full_clean()
     self.save()
 
-    for iface in RealNetworkInterface.objects.filter( foundation=self ):
-      if iface.physical_location in id_map[ 'network' ]:
-        iface.mac = id_map[ 'network' ][ iface.physical_location ][ 'mac' ]
-        iface.full_clean()
-        iface.save()
+    for iface in iface_list:
+      iface.save()
 
     return None
 

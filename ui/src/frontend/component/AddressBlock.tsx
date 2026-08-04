@@ -60,7 +60,7 @@ const AddressBlock: React.FC<Props> = ( { id, site } ) =>
             </Table>
             <Typography variant="h6" sx={{ mt: 2 }}>Addresses</Typography>
             <Table size="small">
-              <TableHead><TableRow><TableCell>Offset</TableCell><TableCell>IP</TableCell><TableCell>Structure</TableCell><TableCell>Interface</TableCell></TableRow></TableHead>
+              <TableHead><TableRow><TableCell>Offset</TableCell><TableCell>IP</TableCell><TableCell>Structure</TableCell><TableCell>Interface</TableCell><TableCell>Created</TableCell><TableCell>Updated</TableCell></TableRow></TableHead>
               <TableBody>
                 { detail.addresses.map( ( addr ) => (
                   <TableRow key={ addr.id }>
@@ -68,25 +68,27 @@ const AddressBlock: React.FC<Props> = ( { id, site } ) =>
                     <TableCell>{ addr.ip_address }</TableCell>
                     <TableCell><Link component={ RouterLink } to={ '/structure/' + ( addr as any ).structure?.toString() }>{ ( addr as any ).structure?.toString() }</Link></TableCell>
                     <TableCell>{ addr.interface_name }</TableCell>
+                    <TableCell>{ dateStr( addr.created ) }</TableCell>
+                    <TableCell>{ dateStr( addr.updated ) }</TableCell>
                   </TableRow>
                 ) ) }
               </TableBody>
             </Table>
             <Typography variant="h6" sx={{ mt: 2 }}>Reserved</Typography>
             <Table size="small">
-              <TableHead><TableRow><TableCell>Offset</TableCell><TableCell>IP</TableCell><TableCell>Reason</TableCell></TableRow></TableHead>
+              <TableHead><TableRow><TableCell>Offset</TableCell><TableCell>IP</TableCell><TableCell>Reason</TableCell><TableCell>Created</TableCell><TableCell>Updated</TableCell></TableRow></TableHead>
               <TableBody>
                 { detail.reserved.map( ( r ) => (
-                  <TableRow key={ r.id }><TableCell>{ r.offset }</TableCell><TableCell>{ r.ip_address }</TableCell><TableCell>{ r.reason }</TableCell></TableRow>
+                  <TableRow key={ r.id }><TableCell>{ r.offset }</TableCell><TableCell>{ r.ip_address }</TableCell><TableCell>{ r.reason }</TableCell><TableCell>{ dateStr( r.created ) }</TableCell><TableCell>{ dateStr( r.updated ) }</TableCell></TableRow>
                 ) ) }
               </TableBody>
             </Table>
             <Typography variant="h6" sx={{ mt: 2 }}>Dynamic</Typography>
             <Table size="small">
-              <TableHead><TableRow><TableCell>Offset</TableCell><TableCell>IP</TableCell></TableRow></TableHead>
+              <TableHead><TableRow><TableCell>Offset</TableCell><TableCell>IP</TableCell><TableCell>Created</TableCell><TableCell>Updated</TableCell></TableRow></TableHead>
               <TableBody>
                 { detail.dynamic.map( ( d ) => (
-                  <TableRow key={ d.id }><TableCell>{ d.offset }</TableCell><TableCell>{ d.ip_address }</TableCell></TableRow>
+                  <TableRow key={ d.id }><TableCell>{ d.offset }</TableCell><TableCell>{ d.ip_address }</TableCell><TableCell>{ dateStr( d.created ) }</TableCell><TableCell>{ dateStr( d.updated ) }</TableCell></TableRow>
                 ) ) }
               </TableBody>
             </Table>
