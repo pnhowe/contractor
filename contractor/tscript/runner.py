@@ -419,12 +419,12 @@ class Runner( object ):
     return self.state == 'ABORTED'
 
   @property
-  def status( self ):  # list of ( % complete, operation, parameters )
+  def status( self ):  # list of { 'percent': % complete, 'operation': ..., 'parameters': ... }
     logging.debug( 'runner: status state: {0}'.format( self.state ) )
     if self.done or self.aborted:
-      return [ ( 100.0, 'Scope', None ) ]
+      return [ { 'percent': 100.0, 'operation': 'Scope', 'parameters': None } ]
     if len( self.state ) == 0:
-      return [ ( 0.0, 'Scope', None ) ]
+      return [ { 'percent': 0.0, 'operation': 'Scope', 'parameters': None } ]
 
     item_list = []  # ( scope position, scope length, scope type, scope data )
     operation = self.ast
@@ -528,7 +528,7 @@ class Runner( object ):
     for item in reversed( item_list ):  # work backwards, as we go up, we scale the last perc_complete acording to the % of the curent scope
       # before + -> scaling the last % complete .... after the +  -> the curent %
       perc_complete = ( 1.0 / item[1] ) * last_perc_complete + ( 100.0 * item[0] ) / item[1]
-      result.insert( 0, ( perc_complete, item[2], item[3] ) )
+      result.insert( 0, { 'percent': perc_complete, 'operation': item[2], 'parameters': item[3] } )
       last_perc_complete = perc_complete
 
     return result

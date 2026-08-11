@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 from cinp.orm_django import DjangoCInP as CInP
 
 from contractor.Building.models import Foundation, Structure
-from contractor.fields import MapField
+from contractor.fields import JSONMapField
 
 MAX_BOX_LIFE = 96  # in hours
 cinp = CInP( 'PostOffice', '0.1' )
@@ -73,7 +73,7 @@ class Box( models.Model ):
   proxy = models.CharField( max_length=512, blank=True, null=True )
   type = models.CharField( max_length=4, choices=BOX_TYPE )
   one_shot = models.BooleanField( default=True )
-  extra_data = MapField()
+  extra_data = JSONMapField()
   expires = models.DateTimeField( blank=True, null=True )
   updated = models.DateTimeField( editable=False, auto_now=True )
   created = models.DateTimeField( editable=False, auto_now_add=True )

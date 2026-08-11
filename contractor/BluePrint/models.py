@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 
 from cinp.orm_django import DjangoCInP as CInP
 
-from contractor.fields import MapField, StringListField, name_regex, config_name_regex
+from contractor.fields import JSONMapField, StringListField, name_regex, config_name_regex
 from contractor.tscript import parser
 from contractor.lib.config import getConfig
 from contractor.BluePrint.lib import validateTemplate, checkTemplate, TemplateError
@@ -33,7 +33,7 @@ class BluePrint( models.Model ):
   name = models.CharField( max_length=40, primary_key=True )  # update Architect and MCP if this changes max_length
   description = models.CharField( max_length=200 )
   scripts = models.ManyToManyField( 'Script', through='BluePrintScript' )
-  config_values = MapField( blank=True, null=True )
+  config_values = JSONMapField( blank=True, null=True )
   updated = models.DateTimeField( editable=False, auto_now=True )
   created = models.DateTimeField( editable=False, auto_now_add=True )
 
@@ -110,7 +110,7 @@ class BluePrint( models.Model ):
 class FoundationBluePrint( BluePrint ):
   parent_list = models.ManyToManyField( 'self', blank=True, symmetrical=False )
   foundation_type_list = StringListField( max_length=200 )  # list of the foundation types this blueprint can be used for
-  validation_template = MapField( blank=True, null=True )
+  validation_template = JSONMapField( blank=True, null=True )
   physical_interface_names = StringListField( max_length=200, blank=True )
 
   def getValidationTemplate( self ):

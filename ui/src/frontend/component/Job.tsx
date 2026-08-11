@@ -18,23 +18,25 @@ interface Props {
 
 const renderStatus = ( item: any, idx: number ) =>
 {
-  if ( item[1] === 'Function' && item[2]?.dispatched )
+  const percent = item.percent.toLocaleString( undefined, { minimumFractionDigits: 2 } );
+
+  if ( item.operation === 'Function' && item.parameters?.dispatched )
     return <Box key={ idx }><strong>Task Dispatched</strong></Box>;
 
-  if ( item[1] === 'Scope' )
+  if ( item.operation === 'Scope' )
   {
-    if ( item[2] === null )
-      return <Box key={ idx }>{ item[0].toLocaleString( undefined, { minimumFractionDigits: 2 } ) }%</Box>;
+    if ( item.parameters === null )
+      return <Box key={ idx }>{ percent }%</Box>;
 
-    if ( item[2]?.time_remaining )
+    if ( item.parameters?.time_remaining )
     {
-      if ( item[2].time_remaining[0] === '-' )
-        return <Box key={ idx } sx={{ bgcolor: 'orange' }}><strong>{ item[2].description }</strong> { item[0].toLocaleString( undefined, { minimumFractionDigits: 2 } ) }% Elapsed:&nbsp;{ item[2].time_elapsed } Remaining:&nbsp;{ item[2].time_remaining }</Box>;
+      if ( item.parameters.time_remaining[0] === '-' )
+        return <Box key={ idx } sx={{ bgcolor: 'orange' }}><strong>{ item.parameters.description }</strong> { percent }% Elapsed:&nbsp;{ item.parameters.time_elapsed } Remaining:&nbsp;{ item.parameters.time_remaining }</Box>;
 
-      return <Box key={ idx }><strong>{ item[2].description }</strong> { item[0].toLocaleString( undefined, { minimumFractionDigits: 2 } ) }% Elapsed:&nbsp;{ item[2].time_elapsed } Remaining:&nbsp;{ item[2].time_remaining }</Box>;
+      return <Box key={ idx }><strong>{ item.parameters.description }</strong> { percent }% Elapsed:&nbsp;{ item.parameters.time_elapsed } Remaining:&nbsp;{ item.parameters.time_remaining }</Box>;
     }
 
-    return <Box key={ idx }><strong>{ item[2].description }</strong> { item[0].toLocaleString( undefined, { minimumFractionDigits: 2 } ) }% Elapsed:&nbsp;{ item[2].time_elapsed }</Box>;
+    return <Box key={ idx }><strong>{ item.parameters.description }</strong> { percent }% Elapsed:&nbsp;{ item.parameters.time_elapsed }</Box>;
   }
 
   return null;

@@ -8,7 +8,7 @@ from django.core.exceptions import ValidationError, ObjectDoesNotExist
 
 from cinp.orm_django import DjangoCInP as CInP
 
-from contractor.fields import MapField, IpAddressField, hostname_regex, name_regex
+from contractor.fields import JSONMapField, IpAddressField, hostname_regex, name_regex
 from contractor.BluePrint.models import PXE
 from contractor.Site.models import Site
 from contractor.lib.ip import IpIsV4, CIDRNetworkBounds, StrToIp, IpToStr, CIDRNetworkSize, CIDRNetmask, CIDRNetworkRange
@@ -609,7 +609,7 @@ class AbstractNetworkInterface( NetworkInterface ):
 class AggregatedNetworkInterface( AbstractNetworkInterface ):
   primary_interface = models.ForeignKey( NetworkInterface, related_name='+', on_delete=models.CASCADE )
   secondary_interfaces = models.ManyToManyField( NetworkInterface, related_name='+' )
-  parameters = MapField( blank=True, null=True )
+  parameters = JSONMapField( blank=True, null=True )
 
   @property
   def subclass( self ):

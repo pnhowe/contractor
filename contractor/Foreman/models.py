@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError, ObjectDoesNotExist
 
 from cinp.orm_django import DjangoCInP as CInP
 
-from contractor.fields import JSONField
+from contractor.fields import JSONMapListField
 from contractor.Site.models import Site
 from contractor.Building.models import Foundation, Structure, Dependency
 
@@ -35,7 +35,7 @@ class BaseJob( models.Model ):
   JOB_STATE_CHOICES = ( 'queued', 'waiting', 'done', 'paused', 'error', 'aborted' )
   site = models.ForeignKey( Site, editable=False, on_delete=models.CASCADE )
   state = models.CharField( max_length=10, choices=[ ( i, i ) for i in JOB_STATE_CHOICES ] )
-  status = JSONField( default=[], blank=True )
+  status = JSONMapListField( blank=True )
   message = models.CharField( max_length=1024, default='', blank=True )  # messages can come from Script (Pause/___Error/Exception), Plugin (fromSubcontractor jobResults/jobError)
   note = models.CharField( max_length=1024, default='', blank=True )  # notes posted from outside the script runner, ie: PXE Image postMessage/signalAlert
   script_runner = models.BinaryField( editable=False )

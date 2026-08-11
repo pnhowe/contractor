@@ -8,7 +8,7 @@ from django.core.exceptions import ValidationError, ObjectDoesNotExist
 
 from cinp.orm_django import DjangoCInP as CInP
 
-from contractor.fields import MapField, JSONField, name_regex, config_name_regex
+from contractor.fields import JSONMapField, name_regex, config_name_regex
 from contractor.Site.models import Site
 from contractor.BluePrint.models import StructureBluePrint, FoundationBluePrint
 from contractor.Utilities.models import Network, Networked, RealNetworkInterface
@@ -42,7 +42,7 @@ class Foundation( models.Model ):
   locator = models.CharField( max_length=100, primary_key=True )  # if this changes make sure to update architect - instance - foundation_id
   site = models.ForeignKey( Site, on_delete=models.PROTECT )
   blueprint = models.ForeignKey( FoundationBluePrint, on_delete=models.PROTECT )
-  id_map = JSONField( blank=True, null=True )  # ie a dict of asset, chassis, system, etc types
+  id_map = JSONMapField( blank=True, null=True, default=None )  # ie a dict of asset, chassis, system, etc types -- set from the bootstrap client via setIdMap, so the dict-only enforcement is doing real work here. default=None (not JSONMapField's usual empty dict): an un-set id_map has to stay None, both to mean "never reported" and because setLocated/setBuilt test it for truthiness
   located_at = models.DateTimeField( editable=False, blank=True, null=True )
   built_at = models.DateTimeField( editable=False, blank=True, null=True )
   updated = models.DateTimeField( editable=False, auto_now=True )
@@ -428,7 +428,7 @@ class Structure( Networked ):
   blueprint = models.ForeignKey( StructureBluePrint, on_delete=models.PROTECT )  # ie what to bild
   foundation = models.OneToOneField( Foundation, related_name='+', on_delete=models.PROTECT )  # ie what to build it on
   config_uuid = models.CharField( max_length=36, unique=True, default='<undefined>' )
-  config_values = MapField( blank=True, null=True )
+  config_values = JSONMapField( blank=True, null=True )
   built_at = models.DateTimeField( editable=False, blank=True, null=True )
   updated = models.DateTimeField( editable=False, auto_now=True )
   created = models.DateTimeField( editable=False, auto_now_add=True )
