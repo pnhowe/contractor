@@ -105,7 +105,7 @@ const Foundation: React.FC<Props> = ( { id, site } ) =>
                     <TableCell><Link component={ RouterLink } to={ '/dependency/' + dep.id }>{ dep.id }</Link></TableCell>
                     <TableCell>{ dep.foundation?.toString() }</TableCell>
                     <TableCell>{ dep.structure?.toString() }</TableCell>
-                    <TableCell>{ dep.state }</TableCell>
+                    <TableCell><Chip size="small" label={ dep.state } color={ stateColor( dep.state ?? '' ) } /></TableCell>
                   </TableRow>
                 ) ) }
               </TableBody>

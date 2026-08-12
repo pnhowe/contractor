@@ -3,10 +3,10 @@ import { useSelector, useDispatch } from 'react-redux';
 import ErrorPanel from './ErrorPanel';
 import { fetchDependencyList, fetchDependency } from '../store/dependenciesSlice';
 import { DEFAULT_PAGE_SIZE } from '../store/sliceFactory';
-import { Box, CircularProgress, Link, Table, TableBody, TableCell, TableHead, TablePagination, TableRow, Typography } from '@mui/material';
+import { Box, Chip, CircularProgress, Link, Table, TableBody, TableCell, TableHead, TablePagination, TableRow, Typography } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import type { RootState, AppDispatch } from '../store';
-import { dateStr } from '../lib/utils';
+import { dateStr, stateColor } from '../lib/utils';
 
 interface Props {
   id?: string;
@@ -81,7 +81,7 @@ const Dependency: React.FC<Props> = ( { id, site } ) =>
               <TableCell align="right"><Link component={ RouterLink } to={ '/dependency/' + item.id }>{ item.id }</Link></TableCell>
               <TableCell>{ item.foundation }</TableCell>
               <TableCell>{ item.structure }</TableCell>
-              <TableCell>{ item.state }</TableCell>
+              <TableCell><Chip size="small" label={ item.state } color={ stateColor( item.state ) } /></TableCell>
               <TableCell>{ item.created }</TableCell>
               <TableCell>{ item.updated }</TableCell>
             </TableRow>
